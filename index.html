@@ -118,6 +118,10 @@ label.lab:first-child{margin-top:0}
 .stat div{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
 .stat b{display:block;font-family:var(--disp);font-size:24px;font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;color:var(--muted)}
+.doc .card+.card{margin-top:12px}.doc h2{margin-bottom:8px}.doc ol,.doc ul{margin:0;padding-left:20px}.doc li{margin:6px 0}.doc p{margin:6px 0}
+.doc table{width:100%;border-collapse:collapse;font-size:13px}.doc th,.doc td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left;vertical-align:top}.doc th{color:var(--muted);font-weight:500}
+.judge{display:flex;flex-wrap:wrap;gap:6px}
+.tab{font-size:11px}
 .tabbar{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding:8px max(16px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));z-index:20}
 .tabbar[hidden]{display:none}
 .tabbar .in{max-width:520px;margin:0 auto;display:flex;gap:8px}
@@ -203,11 +207,150 @@ label.lab:first-child{margin-top:0}
   <p class="muted" id="histEmpty">還沒有送出的紀錄。到「評分」開始第一份。</p>
 </section>
 
+<!-- GUIDE -->
+<section class="screen doc" id="s-guide" hidden>
+  <div class="top"><div class="t"><h1>使用說明</h1><div class="muted">給 Matt、知言：第一次用先看這頁，約 3 分鐘</div></div></div>
+
+  <div class="card"><h2>📱 第一次打開</h2>
+  <ol><li>用手機打開 <b>hoochuu-score-app.vercel.app</b>，不用登入 Claude 或 Notion。</li>
+  <li>建議加到主畫面，之後一點就開：iPhone 用 Safari → 分享 → 加入主畫面；Android 用 Chrome → 右上角 ⋮ → 加到主畫面。</li>
+  <li>輸入自己的 4 位數 PIN：<b>Matt 0000</b>、<b>知言 1111</b>。這台手機之後會記得你，不用每次輸入。</li></ol></div>
+
+  <div class="card"><h2>🍽️ 評一份餐（約 1–2 分鐘）</h2>
+  <ol><li><b>選店</b>：這份餐是哪一間店做的。</li>
+  <li><b>選分類 → 點品項</b>：只會出現那間店有賣的品項。</li>
+  <li><b>一票否決</b>：未熟、異物、做錯、包裝壞、主角沒放、酸敗。沒有就直接按「下一步」；有勾的話這份直接判不合格，但後面各項還是照實勾。</li>
+  <li><b>五個維度，一頁一個</b>：外觀 → 口感 → 風味 → 份量 → 外送。沒問題點「剛好」；有問題只點問題，分數會自動扣。右上角大數字就是這一項的分數。</li>
+  <li><b>覺得自動分不準</b>：點「覺得自動分不準？手動改分」選 1–5 分，並在最後的評論總結寫原因。</li>
+  <li><b>看總分</b>：最後一頁顯示總分和判定。</li>
+  <li><b>補充欄</b>：你覺得問題可能出在哪（用猜的）、會想再點嗎、評論總結（一句話寫最在意的點）、送達分鐘數、實測重量。重量只要負責該店的人填。</li>
+  <li><b>按「送出到 Notion」</b>：回到首頁出現綠色「已送進 Notion」就完成了。</li></ol></div>
+
+  <div class="card"><h2>📋 紀錄頁</h2>
+  <ul><li>看這台手機送過的評分、平均分。</li>
+  <li><b>待同步</b>：網路不穩沒送出的會存在手機，按「重送」就好，資料不會不見。</li>
+  <li><b>複製全部</b>：重送一直失敗時，按一下貼到 LINE 給皮皮。</li>
+  <li><b>更改我的 PIN</b>：改成自己好記的 4 位數，只在這支手機有效。</li>
+  <li>右上角吐司頭像：換人登入。</li></ul></div>
+
+  <div class="card"><h2>🗓️ 評測當天流程</h2>
+  <ol><li><b>第一次先校準（10 分鐘）</b>：三人一起試評 1 份，對齊「偏鹹」「焦苦」要到什麼程度才勾。</li>
+  <li><b>開箱、秤重、拍照</b>：送到馬上開箱，記下送達分鐘數。秤重、拍照由負責那間店的人做。</li>
+  <li><b>同品項並排</b>：三店同一款放一起，一次評一款。</li>
+  <li><b>統一試吃</b>：先摸溫度、聞香氣 → 從中間切開，吃三口（邊緣、中間、另一邊）。順序：鹹的主餐 → 小點 → 甜的 → 飲品，換品項前喝水。飲品先倒進透明杯看顏色再喝。</li>
+  <li><b>各自填 App</b>：填完前不討論、不看別人的分數。</li>
+  <li><b>對齊討論</b>：同一維度差 2 分以上、或有人手動改分的才討論。談不攏由 Matt 決定。</li></ol></div>
+
+  <div class="card"><h2>📸 拍照規格</h2>
+  <p class="hint">同一位置、同一光線、不開閃光燈；餐旁放標籤卡（日期、店別、品項、送達時間）和一把尺。照片這一版不上傳，存在手機交給皮皮。</p>
+  <table><tr><th>順序</th><th>拍什麼</th><th>看什麼</th></tr>
+  <tr><td>1</td><td>開箱原狀</td><td>包裝、漏液、悶水</td></tr>
+  <tr><td>2</td><td>俯視</td><td>外觀、上色、餡料分佈</td></tr>
+  <tr><td>3</td><td>側面貼尺</td><td>厚度</td></tr>
+  <tr><td>4</td><td>切面</td><td>餡料層次、熟度</td></tr>
+  <tr><td>5</td><td>三店並排</td><td>一致性</td></tr></table></div>
+
+  <div class="card"><h2>❓ 常見問題</h2>
+  <p><b>送出後首頁是黃色訊息？</b><br>代表沒送到 Notion，已存在手機。到「紀錄」頁按「重送」。</p>
+  <p><b>選錯店或品項？</b><br>送出前按左上角 ← 回去改。已經送出的，跟皮皮說，她在 Notion 改。</p>
+  <p><b>換手機了？</b><br>用預設 PIN 登入就好；之前改過的 PIN 不會跟著走。</p>
+  <p><b>評分怎麼算？</b><br>看「評分標準」頁。</p></div>
+</section>
+
+<!-- STANDARD -->
+<section class="screen doc" id="s-std" hidden>
+  <div class="top"><div class="t"><h1>評分標準</h1><div class="muted">v0.4｜第一輪評測（11/16）後會再調整</div></div></div>
+
+  <div class="card"><h2>🧮 總分怎麼算</h2>
+  <p>每份餐看 5 個維度，每個維度從 <b>5 分</b>開始，勾一個問題扣 1 或 2 分，最低 1 分。都沒問題點「剛好」不扣分。</p>
+  <p>5 個維度依類別權重換算成 <b>100 分</b>，App 自動算，評測員不用算。</p>
+  <div class="judge"><span class="badge ok">≥ 85 達標</span><span class="badge w">70–84 待改善</span><span class="badge bad">&lt; 70 複訓</span><span class="badge bad">一票否決＝不合格</span></div>
+  <p class="hint" style="margin-top:10px">例：燒醬雞吐司勾「上色不均」「焦苦」「偏鹹」→ 外觀 4、口感 3、風味 4、份量 5、外送 5 → 總分 80，待改善。</p></div>
+
+  <div class="card"><h2>⚖️ 各類別最看重什麼</h2>
+  <table><tr><th>維度</th><th>主餐</th><th>沙拉</th><th>小點</th><th>飲品</th></tr>
+  <tr><td>外觀</td><td>15</td><td>15</td><td>15</td><td>10</td></tr>
+  <tr><td>口感質地</td><td><b>30</b></td><td>20</td><td><b>35</b></td><td>15</td></tr>
+  <tr><td>風味調味</td><td>25</td><td><b>25</b></td><td>20</td><td><b>35</b></td></tr>
+  <tr><td>份量組成</td><td>15</td><td><b>25</b></td><td>15</td><td>20</td></tr>
+  <tr><td>外送狀態</td><td>15</td><td>15</td><td>15</td><td>20</td></tr></table>
+  <p class="hint" style="margin-top:8px">主餐＝吐司、押餅、三明治、漢堡；沙拉含餐盒。</p></div>
+
+  <div class="card"><h2>👀 五個維度各看什麼</h2>
+  <table><tr><th>維度</th><th>看什麼</th></tr>
+  <tr><td>外觀</td><td>上色均勻、切面層次清楚、餡料居中不外漏；沙拉生菜不褐變；飲品看顏色、分層、杯身乾淨</td></tr>
+  <tr><td>口感質地</td><td>熟度對、外酥內軟、不濕軟不乾硬、不吸油；飲品看濃稠、水感、氣泡、粉有沒有溶開</td></tr>
+  <tr><td>風味調味</td><td>鹹甜酸辣剛好、醬量對、記憶點香氣吃得出來、沒有怪味；飲品看甜度、茶或咖啡濃淡</td></tr>
+  <tr><td>份量組成</td><td>配料齊全、比例對、數量對；飲品看容量、冰量、配料</td></tr>
+  <tr><td>外送狀態</td><td>到手溫度、沒悶水、沒壓壞、沒漏、有附吸管或攪拌棒（一店自取看拿到手的狀態）</td></tr></table></div>
+
+  <div class="card"><h2>🚫 一票否決（出現任一項＝不合格）</h2>
+  <table><tr><th>項目</th><th>例子</th></tr>
+  <tr><td>未熟</td><td>肉中心帶血、湯圓硬心</td></tr>
+  <tr><td>異物</td><td>頭髮、包裝碎片</td></tr>
+  <tr><td>做錯</td><td>品項錯、點正常甜來無糖、點去冰來正常冰、「不要」的註記沒做到</td></tr>
+  <tr><td>外包裝損壞</td><td>飲料漏到袋子裡、盒子壓壞、杯子破</td></tr>
+  <tr><td>主要食材沒放</td><td>少了主角：主肉、蛋或主醬。例：燒醬雞吐司沒雞肉。少配角（小黃瓜、蔥花）算份量扣分</td></tr>
+  <tr><td>主要配料沒放（飲品）</td><td>鹹鹹紅茶沒奶霜、海雲珈琲沒奶蓋</td></tr>
+  <tr><td>酸敗餿味</td><td>食材壞掉、醬料酸敗</td></tr></table></div>
+
+  <div class="card"><h2>✋ 手動改分用的 1–5 分</h2>
+  <p class="hint">自動分不準才改。例：「鹹到吃不下」自動只扣 1 分，這時手動給 1 分，並在評論總結寫原因。</p>
+  <table><tr><th>分</th><th>意思</th><th>快速判斷</th></tr>
+  <tr><td>5</td><td>跟你心中的理想一致</td><td>可以直接當標準照</td></tr>
+  <tr><td>4</td><td>小偏差</td><td>你看得出來，客人吃不出來</td></tr>
+  <tr><td>3</td><td>可接受</td><td>客人吃得出來，但不會抱怨</td></tr>
+  <tr><td>2</td><td>明顯不符</td><td>客人可能不會再點</td></tr>
+  <tr><td>1</td><td>不該出餐</td><td>應該重做</td></tr></table>
+  <p class="hint" style="margin-top:8px">拿不定 3 還是 4：問自己「客人吃得出來嗎？」吃得出來就給 3。</p>
+  <details class="manual"><summary>口感、風味、份量的詳細分數表</summary>
+  <table style="margin-top:8px"><tr><th>分</th><th>口感（熟度、焦度、酥脆）</th><th>風味</th><th>份量</th></tr>
+  <tr><td>5</td><td>熟度剛好、均勻金黃、外酥內潤</td><td>都剛好，記憶點吃得出來</td><td>符合期待、配料全、比例對</td></tr>
+  <tr><td>4</td><td>略熟或略嫩、局部顏色略深</td><td>某一味略重或略淡，細吃才發現</td><td>某項略多或略少</td></tr>
+  <tr><td>3</td><td>肉略乾、蛋黃全熟（應半熟）、邊緣小塊焦黑微苦、半邊悶軟</td><td>一吃就覺得偏鹹／偏甜／偏淡，還能吃完</td><td>主料偏少或醬明顯太多／太少</td></tr>
+  <tr><td>2</td><td>乾柴、大面積焦黑有苦味、整份濕軟或乾硬</td><td>明顯過鹹過甜或淡到沒味道</td><td>缺 1 項配料、少到會想客訴</td></tr>
+  <tr><td>1</td><td>未熟（一票否決）、整面焦黑、糊爛</td><td>鹹或辣到吃不下、酸敗異味</td><td>主要食材沒放（一票否決）</td></tr></table></details></div>
+
+  <div class="card"><h2>👅 風味要想的 5 件事</h2>
+  <table><tr><th>檢查面</th><th>看什麼</th><th>怎麼扣</th></tr>
+  <tr><td>平衡</td><td>鹹、甜、酸、辣、油是否剛好</td><td>勾偏鹹、偏甜等，各 -1</td></tr>
+  <tr><td>香氣</td><td>九層塔、花椒、紹興酒、焦香、黑胡椒出來了嗎</td><td>勾「香氣不足」-1</td></tr>
+  <tr><td>異味</td><td>油耗、腥味、焦苦、冰箱味</td><td>勾「有異味」，該項最高 2 分</td></tr>
+  <tr><td>均勻度</td><td>邊緣、中間、另一邊味道一樣嗎</td><td>勾「調味不均」-1</td></tr>
+  <tr><td>後味</td><td>吃完膩不膩、口乾、殘留苦味</td><td>勾「膩口」-1</td></tr></table></div>
+
+  <div class="card"><h2>🧭 容易搞混的判斷</h2>
+  <ul><li><b>甜度</b>：點正常甜來無糖是「做錯」，勾一票否決；都是正常甜但比平常甜或淡，勾「偏甜」或「不夠甜」(-1)。</li>
+  <li><b>同一個問題只扣一次</b>：餡料少一樣算份量；吃起來軟了算口感；是外送悶軟的算外送。</li>
+  <li><b>飲品的冰塊融化、氣泡消失、粉沒溶開</b>算口感，不算風味。</li>
+  <li><b>飲品一律點正常甜、正常冰</b>，三店才比得了。</li></ul></div>
+
+  <div class="card"><h2>🔍 你覺得問題可能出在哪</h2>
+  <p class="hint">用猜的就好，用來決定改善找誰。</p>
+  <table><tr><th>原因</th><th>例子</th><th>後續誰處理</th></tr>
+  <tr><td>原物料</td><td>吐司品牌不同、醬料批次差異</td><td>總部統一採購</td></tr>
+  <tr><td>製作手法</td><td>煎太久、餡料順序不對</td><td>更新 SOP、店內複訓</td></tr>
+  <tr><td>設備</td><td>煎台溫度不均、炸油太舊</td><td>報修或調整火力</td></tr>
+  <tr><td>標準不清楚</td><td>店家不知道好吃的樣子是什麼</td><td>做標準卡（照片＋數值）</td></tr>
+  <tr><td>外送</td><td>悶軟、溫度不夠</td><td>調整包裝</td></tr>
+  <tr><td>看不出來</td><td>猜不到</td><td>評測後一起判斷</td></tr></table></div>
+
+  <div class="card"><h2>📝 不計分的紀錄欄</h2>
+  <ul><li><b>實測重量（g）</b>：秤整份、不含包裝。之後寫進標準卡：差 10% 內算 4–5 分、10–20% 算 3 分、超過 20% 算 2 分。</li>
+  <li><b>送達分鐘數</b>：下單到開箱的分鐘數，判斷外送扣分是不是放太久造成的。</li>
+  <li><b>會想再點嗎</b>：跟總分對不上時，對齊時提出來討論。</li>
+  <li><b>評論總結</b>：一句話寫你最在意的點，例如「吐司中心偏乾」。這是之後寫標準卡最有用的資料。</li></ul></div>
+
+  <p class="muted" style="text-align:center;margin:16px 0">各品項的組成和記憶點，評分時點進品項就會顯示。</p>
+</section>
+
 </div>
 
 <nav class="tabbar" id="tabbar" hidden><div class="in">
   <button type="button" class="tab on" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>評分</button>
   <button type="button" class="tab" data-tab="hist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19h16M6 16V9m6 7V5m6 11v-6"/></svg>紀錄</button>
+  <button type="button" class="tab" data-tab="guide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/></svg>使用說明</button>
+  <button type="button" class="tab" data-tab="std"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l3 3v15H6z"/><path d="M9 10h6M9 14h6M9 18h4"/></svg>評分標準</button>
 </div></nav>
 
 <script>
@@ -329,7 +472,7 @@ function judge(t){if(S.veto.size)return["不合格","bad"];if(t>=85)return["達�
 function toggleProblem(key,opts,name,multi){const set=S.dims[key];if(opts[0][0]===name||!multi){set.clear();set.add(name);return;}set.delete(opts[0][0]);set.has(name)?set.delete(name):set.add(name);}
 
 let cur="pin";
-function show(name){cur=name;document.querySelectorAll(".screen").forEach(s=>s.hidden=s.id!=="s-"+name);$("tabbar").hidden=name==="pin";document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===(name==="hist"?"hist":"home")));window.scrollTo({top:0});renderAll();}
+function show(name){cur=name;document.querySelectorAll(".screen").forEach(s=>s.hidden=s.id!=="s-"+name);$("tabbar").hidden=name==="pin";document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===({hist:"hist",guide:"guide",std:"std"}[name]||"home")));window.scrollTo({top:0});renderAll();}
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>show(t.dataset.tab)));
 document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>show(b.dataset.go)));
 ["logout","logout2"].forEach(id=>$(id).addEventListener("click",()=>{S.evaluator="";S.pin="";save();show("pin");}));
@@ -404,7 +547,7 @@ $("syncBtn").addEventListener("click",async()=>{
   persist();busy=false;$("syncMsg").textContent=`完成：成功 ${ok} 筆${fail?`，失敗 ${fail} 筆`:""}`;renderHist();
 });
 async function savePin(){const a=$("pinNew").value.trim(),b=$("pinNew2").value.trim(),m=$("pinMsg");if(!/^\d{4}$/.test(a)){m.textContent="要 4 位數字";return;}if(a!==b){m.textContent="兩次輸入不一樣";return;}const map=pinMap();if(map[a]&&map[a]!==S.evaluator){m.textContent="這組 PIN 別人在用，換一組";return;}try{PINOV[S.evaluator]=a;localStorage.setItem("hc_pins",JSON.stringify(PINOV));$("pinNew").value="";$("pinNew2").value="";m.textContent="改好了，下次用 "+a+" 登入";}catch(e){m.textContent="存不了："+(e&&e.code||e&&e.message||"");}}
-function renderAll(){if(cur==="pin")renderPin();else if(cur==="home")renderHome();else if(cur==="items")renderItems();else if(cur==="score")renderScore();else if(cur==="sum")renderSum();else renderHist();}
+function renderAll(){if(cur==="pin")renderPin();else if(cur==="home")renderHome();else if(cur==="items")renderItems();else if(cur==="score")renderScore();else if(cur==="sum")renderSum();else if(cur==="hist")renderHist();}
 
 $("photoBtn").addEventListener("click",()=>$("photoInput").click());
 $("photoInput").addEventListener("change",async e=>{const files=[...e.target.files];if(!files.length)return;if(!assets){$("photoHint").textContent="這一版不上傳照片，請存在手機裡，之後交給皮皮。";e.target.value="";return;}$("photoHint").textContent="上傳中…";for(const f of files){try{const r=await assets.upload(await shrink(f));S.photos.push(r.url);}catch(err){$("photoHint").textContent="有照片上傳失敗："+(err&&err.code||"");}}$("photoHint").textContent=S.photos.length+" 張已上傳";renderPhotos();e.target.value="";});
