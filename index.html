@@ -44,9 +44,13 @@ h2{font-size:17px;font-weight:700}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{border:1.5px solid var(--line);background:var(--panel);color:var(--ink);border-radius:14px;padding:10px 14px;font-size:15px;font-family:inherit;cursor:pointer;min-height:44px}
 .chip.on{background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:700}
+.reasons{display:flex;flex-direction:column;gap:8px}
+.rsn{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);border-radius:14px;padding:10px 14px;font-family:inherit;cursor:pointer;min-height:44px}
+.rsn b{display:block;font-size:15px}.rsn span{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.45}
+.rsn.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}.rsn.on span{color:var(--bg);opacity:.8}
 .chip.ok.on{background:var(--ok);border-color:var(--ok);color:#fff}
 .chip.bad.on{background:var(--bad);border-color:var(--bad);color:#fff}
-:is(.chip,.tile,.btn,.tab,.avatar,select,input,textarea,summary):focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+:is(.chip,.rsn,.tile,.btn,.tab,.avatar,select,input,textarea,summary):focus-visible{outline:3px solid var(--sky);outline-offset:2px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
 .card+.card{margin-top:12px}
 .hint{font-size:13px;color:var(--muted);margin:0 0 10px}
@@ -170,7 +174,9 @@ label.lab:first-child{margin-top:0}
   <div class="total"><div class="n" id="totalN">—</div><div><div id="totalJ"></div><div class="muted" style="color:inherit;opacity:.7;margin-top:4px">≥85 達標・70–84 待改善・&lt;70 複訓</div></div></div>
   <div class="card" style="margin-top:12px"><div class="bars" id="bars"></div></div>
   <div class="card">
-    <label class="lab">扣分原因 <span id="reasonHint"></span></label><div class="chips" id="reason"></div>
+    <label class="lab" style="color:var(--ink);font-weight:700;font-size:15px">你覺得問題可能出在哪？ <span id="reasonHint" style="font-weight:400;color:var(--muted);font-size:13px"></span></label>
+    <p class="hint">你只吃得到成品、看不到廚房，所以這裡是「猜」，猜錯沒關係。用途：之後要改善時，知道該找誰處理。同樣是「吐司偏乾」，可能是吐司進貨不同、煎太久、煎台溫度不準，改法完全不一樣。</p>
+    <div class="reasons" id="reason"></div>
     <label class="lab">會想再點嗎</label><div class="chips" id="again"></div>
     <label class="lab" for="summary">評論總結（一句話寫最在意的點）</label><textarea id="summary" placeholder="例：吐司中心偏乾、照燒醬偏甜"></textarea>
     <div class="row" style="margin-top:10px"><div><label class="lab" for="minutes">送達分鐘數</label><input type="number" id="minutes" inputmode="numeric" placeholder="下單到開箱"></div><div><label class="lab" for="weight">實測重量（g）</label><input type="number" id="weight" inputmode="decimal" placeholder="不含包裝"></div></div>
@@ -283,7 +289,13 @@ const MENU=[
  ["飲品｜隨便：炒糖檸檬紅茶","飲品",["一店","二二"],"隨便 4 款之一，只有冰的；配方待補","記下抽到這一款"],
 ];
 const VETO=[["未熟","主沙小"],["異物",""],["做錯（品項、客製、甜度冰量）",""],["外包裝損壞",""],["主要食材沒放（肉／蛋／主醬）","主沙小"],["主要配料沒放（奶霜、配料）","飲"],["酸敗餿味",""]];
-const REASONS=["原物料","製作手法","設備","標準不清楚","外送"];
+const REASONS=[
+ ["原物料","食材本身不一樣：進貨品牌、規格、新鮮度不同。例：這間店的吐司比較乾、生菜不新鮮。→ 總部統一採購"],
+ ["製作手法","人的做法不一樣：步驟、時間、份量抓法不同。例：煎太久、醬抹太少、沒切對。→ 店內複訓"],
+ ["設備","機器或工具狀況不一樣，不是人做錯。例：煎台溫度不準、炸鍋油溫不夠、封口機封不緊。→ 修理或換設備"],
+ ["標準不清楚","本來就沒有明確規定，各店照自己理解做。例：沒寫煎幾分鐘、醬放幾克。→ 總部補寫標準卡"],
+ ["外送","餐本身沒問題，是送的過程搞壞的。例：悶太久反潮、飲料晃到漏、壓扁。→ 改包材或外送方式"],
+ ["看不出來","猜不到原因就選這個，評測後大家討論差異時再一起判斷。"]];
 const AGAIN=["會","普通","不會"];
 const MANUAL=["5｜與你心中的理想一致","4｜小偏差","3｜可接受","2｜明顯不符","1｜不該出餐"];
 const WEIGHTS={"主餐":[15,30,25,15,15],"沙拉":[15,20,25,25,15],"小點":[15,35,20,15,15],"飲品":[10,15,35,20,20]};
@@ -367,8 +379,8 @@ function renderSum(){
   const w=WEIGHTS[cat()]||WEIGHTS["飲品"];const bars=$("bars");bars.textContent="";
   DIMS.forEach((d,i)=>{const s=dimScore(d);const r=document.createElement("div");r.className="bar";r.innerHTML=`<span>${d.name} <span class="muted">×${w[i]}</span></span><div class="tr"><i style="width:${s*20}%;background:${d.color}"></i></div><b>${s}</b>`;bars.appendChild(r);});
   const any=DIMS.some(d=>[...S.dims[d.key]].some(n=>n!==d.opts[0][0]));
-  $("reasonHint").textContent=any?"（有勾問題，請選原因，可複選）":"（沒勾問題可以跳過）";
-  chips($("reason"),REASONS,n=>S.reason.has(n),n=>{S.reason.has(n)?S.reason.delete(n):S.reason.add(n);});
+  $("reasonHint").textContent=any?"（可複選）":"（這份沒勾問題，可以跳過）";
+  {const el=$("reason");el.textContent="";REASONS.forEach(([n,d])=>{const b=document.createElement("button");b.type="button";b.className="rsn"+(S.reason.has(n)?" on":"");b.innerHTML="<b></b><span></span>";b.firstChild.textContent=n;b.lastChild.textContent=d;b.addEventListener("click",()=>{if(S.reason.has(n))S.reason.delete(n);else{if(n==="看不出來")S.reason.clear();else S.reason.delete("看不出來");S.reason.add(n);}renderAll();});el.appendChild(b);});}
   chips($("again"),AGAIN,n=>S.again===n,n=>{S.again=S.again===n?"":n;});
   $("submitBtn").disabled=busy;$("submitBtn").textContent=busy?"送出中…":"送出到 Notion";
 }
