@@ -1,0 +1,424 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>好初餐點評分</title>
+<script src="config.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: phone-first app shell — PIN login, category tiles → item tiles → one dimension per step → summary; sticky tab bar */
+:root{
+  --bg:#fbf4ea;--panel:#ffffff;--ink:#2b2622;--muted:#7b7266;--line:#ecdfcf;
+  --coral:#f0725c;--mint:#4fbf9c;--lav:#8f7be8;--butter:#f2b237;--sky:#4a8fe0;--rose:#e2607f;--plum:#9b59b6;--teal:#2aa198;
+  --ok:#2f8f4a;--ok-bg:#dff3e3;--warn:#a86a07;--warn-bg:#fdecc9;--bad:#c53a2c;--bad-bg:#fbe0db;
+  --font:"Noto Sans TC","PingFang TC",system-ui,sans-serif;--disp:"Fredoka","Noto Sans TC",system-ui,sans-serif;--r:20px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1916;--panel:#2a2420;--ink:#f3ece2;--muted:#a89d8f;--line:#3f362e;--ok:#8fd6a0;--ok-bg:#1f3a27;--warn:#f1c46c;--warn-bg:#3d2d10;--bad:#f39a8d;--bad-bg:#4a2320;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1d1916;--panel:#2a2420;--ink:#f3ece2;--muted:#a89d8f;--line:#3f362e;--ok:#8fd6a0;--ok-bg:#1f3a27;--warn:#f1c46c;--warn-bg:#3d2d10;--bad:#f39a8d;--bad-bg:#4a2320;color-scheme:dark}
+html{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px 110px}
+.app{max-width:520px;margin:0 auto}
+.screen[hidden]{display:none}
+h1,h2,h3{margin:0;text-wrap:balance}
+h1{font-family:var(--disp);font-size:26px;font-weight:700}
+h2{font-size:17px;font-weight:700}
+.muted{color:var(--muted);font-size:13px}
+.top{display:flex;align-items:center;gap:12px;padding:8px 0 14px}
+.top .back{background:var(--panel);border:1px solid var(--line);border-radius:999px;width:38px;height:38px;font-size:18px;cursor:pointer;color:var(--ink);flex:none}
+.top .t{flex:1;min-width:0}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--coral);display:grid;place-items:center;flex:none;overflow:hidden;border:0;cursor:pointer}
+.avatar svg{width:30px;height:30px}
+.hero{background:var(--coral);color:#fff;border-radius:28px;padding:22px 20px 18px;display:flex;gap:14px;align-items:center;overflow:hidden}
+.hero .m{width:84px;height:84px;flex:none}
+.hero h1{color:#fff;font-size:24px}
+.hero p{margin:4px 0 0;font-size:13px;opacity:.92}
+.hero .pill{display:inline-block;margin-top:10px;background:rgba(255,255,255,.22);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}
+.sec{margin-top:18px}
+.sec h2{margin-bottom:10px;display:flex;justify-content:space-between;align-items:baseline}
+.sec h2 small{font-weight:400;color:var(--muted);font-size:12px}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.tile{border:0;border-radius:var(--r);padding:16px 14px;min-height:92px;text-align:left;cursor:pointer;color:#fff;font-family:inherit;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;position:relative;overflow:hidden;min-width:0}
+.tile b{font-size:17px;font-weight:700;line-height:1.25}
+.tile span{font-size:12px;opacity:.92}
+.tile .face{position:absolute;right:10px;top:10px;width:38px;height:28px}
+.tile.on{outline:3px solid var(--ink);outline-offset:2px}
+.tile.c1{background:var(--coral)}.tile.c2{background:var(--mint)}.tile.c3{background:var(--lav)}.tile.c4{background:var(--butter)}.tile.c5{background:var(--sky)}.tile.c6{background:var(--rose)}.tile.c7{background:var(--plum)}.tile.c8{background:var(--teal)}
+.tile.sm{min-height:78px}.tile.sm b{font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--panel);color:var(--ink);border-radius:14px;padding:10px 14px;font-size:15px;font-family:inherit;cursor:pointer;min-height:44px}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:700}
+.chip.ok.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.chip.bad.on{background:var(--bad);border-color:var(--bad);color:#fff}
+:is(.chip,.tile,.btn,.tab,.avatar,select,input,textarea,summary):focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.card+.card{margin-top:12px}
+.hint{font-size:13px;color:var(--muted);margin:0 0 10px}
+input,textarea{width:100%;font:inherit;font-size:16px;padding:12px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);box-sizing:border-box}
+textarea{min-height:70px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.row>*{min-width:0}
+label.lab{display:block;font-size:13px;color:var(--muted);margin:10px 0 6px}
+label.lab:first-child{margin-top:0}
+/* PIN */
+.pin{text-align:center;padding:30px 0 10px}
+.pin .m{width:110px;height:110px}
+.pin h1{margin-top:8px}
+.dots{display:flex;justify-content:center;gap:14px;margin:18px 0}
+.dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--ink);display:block}
+.dots i.f{background:var(--ink)}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;margin:0 auto}
+.pad button{font-family:var(--disp);font-size:26px;font-weight:600;border:0;background:var(--panel);border:1px solid var(--line);border-radius:18px;height:62px;cursor:pointer;color:var(--ink)}
+.pad button.x{font-family:var(--font);font-size:14px;font-weight:500}
+.pinerr{color:var(--bad);font-weight:700;min-height:22px;margin-top:10px}
+/* ingredients */
+.ingr{background:var(--bg);border-radius:14px;padding:10px 12px;margin-bottom:10px}
+.ingr b{font-size:13px}
+.ingr p{margin:4px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
+.ingr .mem{color:var(--ink)}
+/* scoring */
+.steps{display:flex;gap:6px;margin:4px 0 14px}
+.steps i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.steps i.done{background:var(--ink)}.steps i.cur{background:var(--coral)}
+.dimhead{border-radius:var(--r);padding:18px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.dimhead h2{color:#fff;font-size:20px}
+.dimhead p{margin:4px 0 0;font-size:13px;opacity:.92}
+.bigscore{font-family:var(--disp);font-size:44px;font-weight:700;line-height:1;background:rgba(255,255,255,.22);border-radius:16px;padding:8px 14px;min-width:60px;text-align:center;font-variant-numeric:tabular-nums}
+.bigscore small{display:block;font-family:var(--font);font-size:11px;font-weight:500;opacity:.9}
+.manual{margin-top:12px}
+.manual summary{font-size:13px;color:var(--muted);cursor:pointer}
+.manual .chips{margin-top:8px}
+.nav{display:flex;gap:10px;margin-top:14px}
+.btn{font:inherit;font-weight:700;font-size:16px;border:0;border-radius:16px;padding:14px 18px;background:var(--coral);color:#fff;cursor:pointer;min-height:50px;flex:1}
+.btn.dark{background:var(--ink);color:var(--bg)}
+.btn.ghost{background:var(--panel);color:var(--ink);border:1.5px solid var(--line);flex:0 0 auto;font-weight:500}
+.btn[disabled]{opacity:.45;cursor:default}
+.total{background:var(--ink);color:var(--bg);border-radius:28px;padding:20px;display:flex;align-items:center;gap:16px}
+.total .n{font-family:var(--disp);font-size:56px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.total .n small{font-size:16px;opacity:.7;font-weight:500}
+.badge{display:inline-block;border-radius:8px;padding:3px 10px;font-size:13px;font-weight:700}
+.badge.ok{background:var(--ok-bg);color:var(--ok)}.badge.w{background:var(--warn-bg);color:var(--warn)}.badge.bad{background:var(--bad-bg);color:var(--bad)}
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar{display:grid;grid-template-columns:84px 1fr 28px;align-items:center;gap:10px;font-size:13px}
+.bar .tr{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.bar .tr i{display:block;height:100%;border-radius:5px}
+.bar b{font-family:var(--disp);font-size:16px;text-align:right;font-variant-numeric:tabular-nums}
+.msg{font-size:14px;padding:12px 14px;border-radius:14px;background:var(--warn-bg);color:var(--ink);margin-bottom:12px}
+.msg.bad{background:var(--bad-bg)}.msg.ok{background:var(--ok-bg)}
+.msg a{color:inherit;font-weight:700}
+.photos{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.photos img{width:72px;height:72px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+.shot{font-size:13px;color:var(--muted);margin:0;padding-left:18px}.shot li{margin:2px 0}
+.hlist{display:flex;flex-direction:column;gap:8px}
+.hitem{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.hitem .sc{font-family:var(--disp);font-size:24px;font-weight:700;min-width:44px;text-align:center;border-radius:12px;padding:6px 0;font-variant-numeric:tabular-nums}
+.hitem .sc.ok{background:var(--ok-bg);color:var(--ok)}.hitem .sc.w{background:var(--warn-bg);color:var(--warn)}.hitem .sc.bad{background:var(--bad-bg);color:var(--bad)}
+.hitem .t{flex:1;min-width:0}.hitem .t b{display:block;font-size:14px}.hitem .t span{font-size:12px;color:var(--muted)}
+.hitem a{font-size:13px;color:var(--sky);font-weight:700;text-decoration:none}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat div{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
+.stat b{display:block;font-family:var(--disp);font-size:24px;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted)}
+.tabbar{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding:8px max(16px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));z-index:20}
+.tabbar[hidden]{display:none}
+.tabbar .in{max-width:520px;margin:0 auto;display:flex;gap:8px}
+.tab{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-size:12px;padding:8px 4px;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tab svg{width:22px;height:22px}
+.tab.on{background:var(--coral);color:#fff;font-weight:700}
+@media (prefers-reduced-motion:no-preference){.chip,.tile,.tab{transition:background .12s,color .12s,outline-color .12s}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="toast" viewBox="0 0 64 64"><path d="M8 28c0-13 11-22 24-22s24 9 24 22H8z" fill="#e9a44f"/><ellipse cx="21" cy="14" rx="1.6" ry="1" fill="#fff3d6"/><ellipse cx="30" cy="10" rx="1.6" ry="1" fill="#fff3d6"/><ellipse cx="40" cy="13" rx="1.6" ry="1" fill="#fff3d6"/><path d="M6 30h52l-3 5H9z" fill="#7cc46b"/><path d="M6 30c4 4 8 4 12 0s8-4 12 0 8 4 12 0 8-4 12 0l-2 6H8z" fill="#8fd27e"/><rect x="9" y="35" width="46" height="7" rx="3" fill="#e2607f"/><rect x="8" y="41" width="48" height="7" rx="3" fill="#f2b237"/><rect x="10" y="47" width="44" height="6" rx="3" fill="#8a5a2b"/><path d="M10 53h44v2c0 3-3 5-6 5H16c-3 0-6-2-6-5z" fill="#e9a44f"/><circle cx="25" cy="21" r="5" fill="#fff"/><circle cx="39" cy="21" r="5" fill="#fff"/><circle cx="26" cy="22" r="2.4" fill="#2b2622"/><circle cx="40" cy="22" r="2.4" fill="#2b2622"/><path d="M28 27q4 3 8 0" stroke="#2b2622" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+  <symbol id="eyes" viewBox="0 0 38 28"><circle cx="11" cy="14" r="10" fill="#fff"/><circle cx="27" cy="14" r="10" fill="#fff"/><circle cx="12.5" cy="15" r="4.5" fill="#2b2622"/><circle cx="28.5" cy="15" r="4.5" fill="#2b2622"/></symbol>
+</svg>
+
+<div class="app">
+
+<!-- PIN -->
+<section class="screen pin" id="s-pin">
+  <svg class="m"><use href="#toast"/></svg>
+  <h1>好初餐點評分</h1>
+  <p class="muted">輸入你的 4 位數 PIN，這台手機以後就認得你（可在「紀錄」頁改成自己的）</p>
+  <div class="dots" id="dots"><i></i><i></i><i></i><i></i></div>
+  <div class="pad" id="pad"></div>
+  <div class="pinerr" id="pinerr"></div>
+</section>
+
+<!-- HOME: pick store + category -->
+<section class="screen" id="s-home" hidden>
+  <div class="top"><div class="t"><h1>好初餐點評分</h1><div class="muted" id="homeSub"></div></div><button type="button" class="avatar" id="logout" title="換人登入"><svg><use href="#toast"/></svg></button></div>
+  <div id="connMsg" class="msg" hidden></div>
+  <div class="hero"><svg class="m"><use href="#toast"/></svg><div><h1 id="heroTitle"></h1><p>勾問題就自動扣分，送出直接進 Notion。</p><span class="pill" id="heroPill"></span></div></div>
+  <div class="sec"><h2>這份餐來自 <small>先選店</small></h2><div class="tiles" id="store"></div></div>
+  <div class="sec"><h2>哪一類 <small id="catSub"></small></h2><div class="tiles" id="cats"></div></div>
+</section>
+
+<!-- ITEMS -->
+<section class="screen" id="s-items" hidden>
+  <div class="top"><button type="button" class="back" data-go="home" aria-label="返回">←</button><div class="t"><h2 id="itemsTitle"></h2><div class="muted" id="itemsSub"></div></div></div>
+  <div class="tiles" id="items"></div>
+</section>
+
+<!-- SCORE -->
+<section class="screen" id="s-score" hidden>
+  <div class="top"><button type="button" class="back" id="scoreBack" aria-label="返回">←</button><div class="t"><h2 id="scoreItem"></h2><div class="muted" id="scoreSub"></div></div></div>
+  <div class="steps" id="steps"></div>
+  <div id="stepHost"></div>
+  <div class="nav"><button type="button" class="btn ghost" id="prevBtn">上一步</button><button type="button" class="btn dark" id="nextBtn">下一步 →</button></div>
+</section>
+
+<!-- SUMMARY -->
+<section class="screen" id="s-sum" hidden>
+  <div class="top"><button type="button" class="back" id="sumBack" aria-label="返回">←</button><div class="t"><h2>確認後送出</h2><div class="muted" id="sumSub"></div></div></div>
+  <div id="sumMsg" class="msg" hidden></div>
+  <div class="total"><div class="n" id="totalN">—</div><div><div id="totalJ"></div><div class="muted" style="color:inherit;opacity:.7;margin-top:4px">≥85 達標・70–84 待改善・&lt;70 複訓</div></div></div>
+  <div class="card" style="margin-top:12px"><div class="bars" id="bars"></div></div>
+  <div class="card">
+    <label class="lab">扣分原因 <span id="reasonHint"></span></label><div class="chips" id="reason"></div>
+    <label class="lab">會想再點嗎</label><div class="chips" id="again"></div>
+    <label class="lab" for="summary">評論總結（一句話寫最在意的點）</label><textarea id="summary" placeholder="例：吐司中心偏乾、照燒醬偏甜"></textarea>
+    <div class="row" style="margin-top:10px"><div><label class="lab" for="minutes">送達分鐘數</label><input type="number" id="minutes" inputmode="numeric" placeholder="下單到開箱"></div><div><label class="lab" for="weight">實測重量（g）</label><input type="number" id="weight" inputmode="decimal" placeholder="不含包裝"></div></div>
+  </div>
+  <div class="card">
+    <h2 style="margin-bottom:6px">照片 <span class="muted" style="font-weight:400">負責這間店的人拍</span></h2>
+    <ol class="shot"><li>同一位置、同一光線、不開閃光燈；餐旁放標籤卡和一把尺。</li><li>依序 5 張：開箱原狀 → 俯視 → 側面貼尺 → 切面 → 三店並排。</li><li>飲品倒進透明杯，拍顏色和分層。</li></ol>
+    <input type="file" id="photoInput" accept="image/*" multiple hidden>
+    <div class="nav" style="margin-top:10px"><button type="button" class="btn ghost" id="photoBtn" style="flex:1">選擇照片</button></div>
+    <div class="muted" id="photoHint" style="margin-top:6px"></div>
+    <div class="photos" id="photos"></div>
+  </div>
+  <div class="nav"><button type="button" class="btn" id="submitBtn">送出到 Notion</button></div>
+</section>
+
+<!-- HISTORY -->
+<section class="screen" id="s-hist" hidden>
+  <div class="top"><div class="t"><h1>本次紀錄</h1><div class="muted" id="histSub">大家送出的評分</div></div><button type="button" class="avatar" id="logout2" title="換人登入"><svg><use href="#toast"/></svg></button></div>
+  <div class="stat"><div><b id="stN">0</b><span>已送出</span></div><div><b id="stAvg">—</b><span>平均分</span></div><div><b id="stPend">0</b><span>待同步</span></div></div>
+  <div id="adminBox" class="card" hidden style="margin-bottom:12px"><h2 style="margin-bottom:6px">待同步的紀錄</h2><p class="hint" id="adminHint">網路不穩沒送進 Notion 的紀錄留在這台手機，按一下重送。</p><div class="nav" style="margin-top:0"><button type="button" class="btn dark" id="syncBtn">全部同步到 Notion</button></div><div class="muted" id="syncMsg" style="margin-top:8px"></div></div>
+  <div id="pinBox" class="card" hidden style="margin-bottom:12px"><h2 style="margin-bottom:6px">更改我的 PIN</h2><p class="hint">4 位數字，改完下次登入用新的，預設的就失效。</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input id="pinNew" inputmode="numeric" maxlength="4" placeholder="新 PIN"><input id="pinNew2" inputmode="numeric" maxlength="4" placeholder="再輸入一次"></div><div class="nav" style="margin-top:8px"><button type="button" class="btn dark" id="pinSave">儲存新 PIN</button></div><div class="muted" id="pinMsg" style="margin-top:8px"></div></div>
+  <div id="copyBox" class="card" hidden style="margin-bottom:12px"><h2 style="margin-bottom:6px">把紀錄傳給皮皮</h2><p class="hint">重送一直失敗的話，按一下複製全部，貼到 LINE 給皮皮，她會幫你送進 Notion。</p><div class="nav" style="margin-top:0"><button type="button" class="btn dark" id="copyBtn">複製全部</button></div><div class="muted" id="copyMsg" style="margin-top:8px"></div><textarea id="copyRaw" hidden rows="6" style="margin-top:8px;font-size:12px"></textarea></div>
+  <div class="hlist" id="hist"></div>
+  <p class="muted" id="histEmpty">還沒有送出的紀錄。到「評分」開始第一份。</p>
+</section>
+
+</div>
+
+<nav class="tabbar" id="tabbar" hidden><div class="in">
+  <button type="button" class="tab on" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>評分</button>
+  <button type="button" class="tab" data-tab="hist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19h16M6 16V9m6 7V5m6 11v-6"/></svg>紀錄</button>
+</div></nav>
+
+<script>
+// PIN → 評測員。改 PIN 直接改這裡。
+const PINS={"0000":"Matt","1111":"知言","1228":"皮皮"};const NAMES=Object.values(PINS);let PINOV={};
+function pinMap(){const m={};Object.entries(PINS).forEach(([p,n])=>{if(!(n in PINOV))m[p]=n;});Object.entries(PINOV).forEach(([n,p])=>{m[p]=n;});return m;}
+const STORES=[["一店","c1","總部自取"],["二二","c2","Uber Eats 送回"],["中山","c3","Uber Eats 送回"],["敦南","c5","Lalamove 送回"]];
+const ALL=["一店","二二","中山","敦南"];
+// 分類：[名稱, 色, Notion 前綴]
+const CATS=[["厚煎吐司","c1","主餐"],["厚押餅","c7","主餐"],["三明治","c4","主餐"],["漢堡","c6","主餐"],["沙拉・餐盒","c2","主餐"],["小點","c8","小點"],["飲品","c5","飲品"]];
+// 品項：id(Notion 選項名), 分類, 販售店, 組成, 記憶點
+const MENU=[
+ ["主餐｜燒醬雞厚煎吐司","厚煎吐司",["一店","中山","敦南"],"洋蔥、彩椒、雞胸肉、照燒醬、乳酪絲","咖啡色照燒醬、紅黃椒、自醃雞胸肉，口味偏甜；醬不泡軟吐司"],
+ ["主餐｜經典蛋沙拉厚煎吐司","厚煎吐司",["一店","中山","敦南"],"蛋沙拉（水煮蛋＋蘋果＋馬鈴薯丁＋美乃滋）、花生醬、小黃瓜、乳酪絲；一店另加培根碎","花生醬顏色明顯、蛋沙拉濃稠不水、小黃瓜不出水"],
+ ["主餐｜九層塔培根厚煎吐司","厚煎吐司",["一店"],"青醬、洋蔥、番茄、小火腿、培根、鮮奶油、乳酪絲","綠色自製青醬、培根焦香、番茄不出水"],
+ ["主餐｜台台炸醬蛋厚煎吐司","厚煎吐司",["中山","敦南"],"洋蔥、炸醬、半熟蛋、花生醬","自製炸醬鹹度一致、不太油、半熟蛋"],
+ ["主餐｜山珍拌豬厚煎吐司","厚煎吐司",["敦南"],"洋蔥、香菜、豬肉片、海山醬、甜不辣、花生粉、乳酪絲","以豬血糕為發想的台灣味：香菜、花生粉"],
+ ["主餐｜燒醬雞厚押餅","厚押餅",["二二"],"洋蔥、彩椒、雞胸肉、照燒醬、乳酪絲","壓痕清楚、餅體不硬、餡料不外溢；餡料同燒醬雞吐司"],
+ ["主餐｜經典蛋沙拉厚押餅","厚押餅",["二二"],"蛋沙拉（水煮蛋＋蘋果＋美乃滋＋馬鈴薯丁）、花生醬、小黃瓜、培根碎、乳酪絲","壓痕清楚、餅體不硬；蛋沙拉濃稠不水"],
+ ["主餐｜麥特牛肉厚押餅","厚押餅",["二二"],"洋蔥、沙茶醬、乾辣椒、花生碎、青椒牛肉、乳酪絲","沙茶牛肉不柴、辣度一致"],
+ ["主餐｜一拳排骨三明治","三明治",ALL,"大陸妹、排骨、半熟蛋、椒鹽粉、美乃滋","整塊排骨外酥不硬、半熟蛋蛋黃未全熟"],
+ ["主餐｜一擊必初雞腿王三明治","三明治",ALL,"美乃滋、高麗菜絲、蔥花、雞腿、薯條辣醬","自製醃雞腿多汁、辣度一致、蔥花鋪滿"],
+ ["主餐｜首爾豬豬三明治","三明治",ALL,"韓式豬肉片、芝麻油醃豆芽、美乃滋、大陸妹、起司片、白芝麻","韓式豬肉片入味、小辣、黃豆芽不出水"],
+ ["主餐｜美式培根三明治","三明治",ALL,"大陸妹、番茄、培根、黑胡椒粒、白芝麻、研磨起司、山葵美乃滋","培根焦香不硬、番茄新鮮；別漏山葵美乃滋"],
+ ["主餐｜蛋沙拉培根三明治","三明治",ALL,"蛋沙拉醬、培根 2 片、黑胡椒粒、帕馬森起司刨絲、白芝麻","蛋沙拉濃稠不水、培根焦香、培根要 2 片"],
+ ["主餐｜經典蛋沙拉三明治","三明治",ALL,"蛋沙拉（水煮蛋＋蘋果＋馬鈴薯丁＋美乃滋）、大陸妹、小黃瓜、花生醬；一店、二二另加培根碎","自製蛋沙拉濃稠、不過鹹不過甜"],
+ ["主餐｜鮪魚APPLE三明治","三明治",["一店","二二"],"鮪魚醬（鮪魚＋碎洋蔥＋小黃瓜）、蘋果、大陸妹、美乃滋","自製鮪魚醬不水、蘋果片脆不褐變"],
+ ["主餐｜鮪魚APPLE蛋三明治","三明治",["中山","敦南"],"鮪魚醬（鮪魚＋碎洋蔥＋小黃瓜）、蘋果、大陸妹、美乃滋、蛋","同鮪魚APPLE＋蛋熟度一致"],
+ ["主餐｜椒羞蘋果豬三明治","三明治",["敦南"],"吐司（17 切）2 片、醬汁 20 g（蘋果、砂糖、辣椒碎、蒜泥、味醂、金蘭醬油）、豬肉片 60 g、青椒 20 g、高麗菜絲 15 g、美乃滋、蘋果片 20 g","甜鹹微辣、青椒脆、豬肉片不柴；注意「不要高麗菜絲」註記"],
+ ["主餐｜餐桌塔香豬三明治","三明治",["一店"],"高麗菜絲、豬肉片、洋蔥、辣椒、蒜碎、豆芽菜、九層塔、熊貓醬","九層塔香氣明顯、辣度一致、九層塔不變黑"],
+ ["主餐｜草莓鹹奶油三明治","三明治",ALL,"草莓醬、有鹽奶油、棉花糖","草莓醬與有鹽奶油鹹甜平衡；別漏棉花糖、奶油沒融塌"],
+ ["主餐｜巧克力鹹奶油三明治","三明治",ALL,"巧克力、有鹽奶油、脆酷力","一面巧克力、一面鹹奶油；別塗反或漏塗"],
+ ["主餐｜板橋炸肉餅堡","漢堡",ALL,"洋蔥、高麗菜絲、豬排醬、炸肉餅、美乃滋","肉餅外酥、內部熟透多汁；不反潮軟化"],
+ ["主餐｜嫩燒豬豬蛋堡","漢堡",ALL,"洋蔥、大陸妹、蛋、豬柳、BBQ醬","「土石流」豬柳醬汁感、BBQ醬適量不滴漏"],
+ ["主餐｜千層豆皮嫩蛋堡","漢堡",ALL,"高麗菜絲、椒鹽粉、蛋、炸豆皮、香菇醬","整塊炸豆皮酥、蛋嫩、香菇醬有黑胡椒香"],
+ ["主餐｜板煎鹹豬肉堡","漢堡",ALL,"洋蔥、高麗菜絲、鹹豬肉、蒜苗、蔥花、美乃滋","鹹豬肉煎香不硬、不過鹹、蔥花明顯"],
+ ["主餐｜初香鮮魚堡","漢堡",ALL,"大陸妹、塔塔醬、菱形魚排、美乃滋","菱形魚排外酥內嫩、無腥味、塔塔醬適量"],
+ ["沙拉｜凱薩雞肉沙拉","沙拉・餐盒",ALL,"大陸妹、小豆苗、彩椒、凱薩醬、麵包丁、煎烤雞腿排、帕馬森起司粉（已無苜蓿芽）","綠藤芽菜新鮮、雞腿排不柴、麵包丁脆"],
+ ["沙拉｜男朋友沙拉","沙拉・餐盒",ALL,"大陸妹、小豆苗、紫洋蔥、高麗菜絲、油醋醬、麵包丁、蔥花、花生碎、鹹豬肉、太陽蛋、炒蒜苗","太陽蛋蛋黃未全熟、鹹豬肉不硬、油醋醬"],
+ ["沙拉｜女朋友沙拉","沙拉・餐盒",["二二"],"生菜、小豆苗、紫洋蔥、凱薩醬、麵包丁、炒菇菇、溫泉蛋、帕馬森起司粉、綠粉、培根碎","溫泉蛋熟度一致、炒菇菇有香氣"],
+ ["主餐｜一顆皮蛋麵","沙拉・餐盒",["敦南","二二"],"配方待補","麵條不糊不黏團"],
+ ["主餐｜法式吐司盤","沙拉・餐盒",["二二"],"黑糖法式吐司 3 塊、培根捲、炸薯塊、小份凱薩沙拉、太陽蛋","法式吐司蛋液吃透、表面金黃"],
+ ["主餐｜兒童乖乖餐","沙拉・餐盒",ALL,"草莓、巧克力醬吐司、脆薯、炒蛋、芭樂（梅子粉）、果汁、巴西里","份量、不辣、炒蛋嫩、水果新鮮"],
+ ["小點｜初醬薯條","小點",ALL,"地瓜薯＋脆薯、薯條辣醬、巴西里、刨帕馬森起司","兩種薯條都酥、不吸油；別漏刨起司"],
+ ["小點｜麥特香雞塊","小點",ALL,"紅龍雞塊 4 塊","外酥、內部熱透、數量 4 塊"],
+ ["小點｜酥炸圓仔","小點",ALL,"湯圓 20 顆、花生粉","外酥內Q、不爆開、不硬心；別漏花生粉"],
+ ["小點｜早安薯餅","小點",ALL,"薯餅 1 塊","金黃酥脆、不吸油、顏色不過深或偏白"],
+ ["小點｜金沙金瓜瓜","小點",ALL,"高麗菜絲、南瓜、椒鹽粉、鹹蛋、蔥花","鹹蛋黃包覆均勻、南瓜不糊、不太油"],
+ ["小點｜初秘製茶葉蛋","小點",ALL,"滷汁：紹興酒、紅茶包、八角、金蘭醬油、砂糖、鹽","紹興酒香、入味、蛋白有花紋、溫度夠"],
+ ["小點｜好初奶茶凍","小點",["一店","二二"],"配方待補","凍體成形不糊、奶茶味足；外送後沒融化"],
+ ["小點｜二二雞翅","小點",["二二"],"雞翅 2 隻、甜雞醬、蔥花、白芝麻","外皮酥、骨邊熟透；是蔥花不是蔥絲"],
+ ["小點｜調皮搗蛋涼麵","小點",["敦南"],"素麵（煮好）135 g、皮蛋醬 70 g（皮蛋、金蘭醬油膏、工研烏醋、蔥花、蒜末）、香菜多力多滋 10 g、花椒油 5 g","麵不黏團、皮蛋醬拌得開、花椒油微麻微辣、多力多滋酥脆；注意「不要蔥花」註記"],
+ ["飲品｜好初紅茶","飲品",ALL,"東爵紅茶，可做無糖","茶湯不澀不淡"],
+ ["飲品｜鹹鹹紅茶","飲品",ALL,"紅茶＋鹹奶霜","鹹奶霜鹹度、不用吸管直接喝；熱的放涼奶霜會凝固"],
+ ["飲品｜又一春冷泡茶","飲品",ALL,"冷泡茶，附攪拌棒","清香不苦；別漏攪拌棒"],
+ ["飲品｜好初奶茶","飲品",ALL,"紅茶＋奶精（每日限量）","茶奶比例，顏色比鮮奶茶深"],
+ ["飲品｜好初鮮奶茶","飲品",ALL,"紅茶＋鮮奶（不加奶精）","顏色要比奶茶淡"],
+ ["飲品｜黑糖奶奶","飲品",ALL,"黑糖＋鮮奶","黑糖香、不沉底"],
+ ["飲品｜豆漿紅茶","飲品",ALL,"義美豆漿＋紅茶","豆漿無焦味"],
+ ["飲品｜燕麥鮮奶茶","飲品",ALL,"紅茶＋燕麥奶","燕麥奶版鮮奶茶"],
+ ["飲品｜印度香料奶茶","飲品",ALL,"肉桂、荳蔻、丁香、薑母、八角，附攪拌棒","五種香料都喝得到；別漏攪拌棒"],
+ ["飲品｜好初豆漿","飲品",ALL,"義美豆漿，可做無糖","豆漿無焦味"],
+ ["飲品｜嘉明鮮奶","飲品",["一店"],"鮮奶","冷熱正確"],
+ ["飲品｜美祿可可","飲品",["中山","敦南"],"美祿可可，附攪拌棒","可可粉要溶開；別漏攪拌棒"],
+ ["飲品｜精品美式珈琲","飲品",ALL,"美式咖啡（要詢問果糖或奶精）","不苦澀"],
+ ["飲品｜精品拿鐵珈琲","飲品",ALL,"拿鐵（要詢問果糖）","不苦澀、奶泡細"],
+ ["飲品｜燕麥拿鐵珈琲","飲品",ALL,"燕麥奶拿鐵","燕麥奶版拿鐵"],
+ ["飲品｜西西里氣泡珈琲","飲品",ALL,"氣泡咖啡，需攪拌","到手仍有氣"],
+ ["飲品｜海雲珈琲","飲品",["一店","二二"],"鹹奶霜＋微糖美式，不用吸管","奶霜到手未塌、微糖"],
+ ["飲品｜奶蓋珈琲","飲品",["中山","敦南"],"鹹奶霜＋微糖美式（＝海雲珈琲）","奶霜到手未塌、微糖"],
+ ["飲品｜特調奶蓋珈琲","飲品",["中山","敦南"],"奶蓋＋特調咖啡","奶蓋到手未塌、咖啡不苦澀"],
+ ["飲品｜燕麥抹黑滋滋","飲品",ALL,"芝麻抹茶＋燕麥奶，附攪拌棒","抹茶與芝麻味都有、無結塊"],
+ ["飲品｜抹茶麻麻","飲品",["一店","二二"],"芝麻抹茶，附攪拌棒","抹茶與芝麻味都有、粉要化開"],
+ ["飲品｜鮮榨柳橙汁","飲品",ALL,"100% 原汁（非現榨）","不苦、未氧化"],
+ ["飲品｜Lemon! 蜂蜜甜心氣泡飲","飲品",ALL,"南投有機熟蜜＋檸檬，恕不去冰，附環保吸管，需攪拌","蜜香、氣泡感；別漏環保吸管"],
+ ["飲品｜隨便：來吧!美梅","飲品",["一店","二二"],"隨便 4 款之一，只有冰的；配方待補","記下抽到這一款"],
+ ["飲品｜隨便：費歐娜的洗澡水","飲品",["一店","二二"],"隨便 4 款之一，只有冰的；配方待補","記下抽到這一款"],
+ ["飲品｜隨便：蔓蔓喜歡你","飲品",["一店","二二"],"隨便 4 款之一，只有冰的；配方待補","記下抽到這一款"],
+ ["飲品｜隨便：炒糖檸檬紅茶","飲品",["一店","二二"],"隨便 4 款之一，只有冰的；配方待補","記下抽到這一款"],
+];
+const VETO=[["未熟","主沙小"],["異物",""],["做錯（品項、客製、甜度冰量）",""],["外包裝損壞",""],["主要食材沒放（肉／蛋／主醬）","主沙小"],["主要配料沒放（奶霜、配料）","飲"],["酸敗餿味",""]];
+const REASONS=["原物料","製作手法","設備","標準不清楚","外送"];
+const AGAIN=["會","普通","不會"];
+const MANUAL=["5｜與你心中的理想一致","4｜小偏差","3｜可接受","2｜明顯不符","1｜不該出餐"];
+const WEIGHTS={"主餐":[15,30,25,15,15],"沙拉":[15,20,25,25,15],"小點":[15,35,20,15,15],"飲品":[10,15,35,20,20]};
+const DIMS=[
+ {key:"look",name:"外觀",color:"var(--lav)",prop:"外觀問題",manual:"外觀分數（選填：覺得自動分不準才填）",look:"上色均勻嗎？切面、擺盤清楚嗎？餡料居中嗎？（飲品看顏色、分層、奶霜）",multi:true,
+  opts:[["剛好（±0）",0,""],["上色不均（-1）",1,"主沙小"],["餡料偏一邊（-1）",1,"主"],["配料分布不均（-1）",1,"沙小"],["切面凌亂（-1）",1,"主"],["擺盤凌亂（-1）",1,"沙"],["生菜變色枯萎（-1）",1,"沙"],["外包裝油膩（-1）",1,"主沙小"],["顏色不對／分層異常（-1）",1,"飲"],["奶霜奶蓋塌掉（-1）",1,"飲"],["杯身封膜髒污（-1）",1,"飲"],["餡料散落在包裝內（-2）",2,"主"],["配料散落在包裝內（-2）",2,"沙小"],["形狀不完整／爆裂（-2）",2,"主沙小"]]},
+ {key:"tex",name:"口感質地",color:"var(--butter)",prop:"口感問題",manual:"口感分數（選填：覺得自動分不準才填）",look:"熟度對嗎？有沒有焦？酥不酥、乾不乾？（飲品看濃淡、水感、氣泡、粉有沒有溶開）",multi:true,
+  opts:[["剛好（±0）",0,""],["濕軟／不酥（-1）",1,"主沙小"],["油膩／吸油（-1）",1,"主沙小"],["出水／不脆（-1）",1,"沙"],["太稀／太濃（-1）",1,"飲"],["冰塊融化有水感（-1）",1,"飲"],["氣泡消失（-1）",1,"飲"],["粉沒溶開／沉底（-1）",1,"飲"],["偏生／未熟透（-2）",2,"主沙小"],["過熟／乾柴（-2）",2,"主沙小"],["焦／有焦苦味（-2）",2,"主沙小"],["乾硬（-2）",2,"主小"],["黏團／糊掉（-2）",2,"主沙小"],["奶霜結塊／凝固（-2）",2,"飲"]]},
+ {key:"fla",name:"風味調味",color:"var(--coral)",prop:"調味方向",propDrink:"飲品問題",manual:"風味分數（選填：覺得自動分不準才填）",look:"鹹甜酸辣剛好嗎？該有的香氣出來了嗎？有沒有怪味？",multi:true,
+  opts:[["剛好（±0）",0,""],["偏淡／偏輕（-1）",1,"主沙小"],["偏鹹（-1）",1,"主沙小"],["偏甜（-1）",1,""],["不夠甜（-1）",1,"飲"],["偏酸（-1）",1,"主沙小"],["偏辣（-1）",1,"主沙小"],["偏油（-1）",1,"主沙小"],["醬／粉太多（-1）",1,"主沙小"],["醬／粉太少（-1）",1,"主沙小"],["茶味／咖啡味太淡（-1）",1,"飲"],["太苦（-1）",1,"飲"],["太酸（-1）",1,"飲"],["太澀（-1）",1,"飲"],["奶味不足（-1）",1,"飲"],["香氣不足（-1）",1,""],["調味不均（-1）",1,"主沙小"],["膩口（-1）",1,""],["有異味（最高2分）",0,""]]},
+ {key:"por",name:"份量組成",color:"var(--mint)",prop:"份量感受",manual:"份量分數（選填：覺得自動分不準才填）",look:"份量符合期待嗎？下面的組成都在嗎？（飲品看容量、冰量、配料）",multi:false,
+  opts:[["符合期待（±0）",0,""],["偏多（-1）",1,"主沙小"],["比例不對（-1）",1,"主沙小"],["偏少（-2）",2,"主沙小"],["配料太少（-1）",1,"飲"],["容量不足／冰太多（-2）",2,"飲"]]},
+ {key:"del",name:"外送狀態",color:"var(--sky)",prop:"外送問題",manual:"外送分數（選填：覺得自動分不準才填）",look:"到手溫度對嗎？有沒有悶水、壓壞、漏液、少附東西？（一店自取，看拿到手的狀態）",multi:true,
+  opts:[["剛好（±0）",0,""],["溫度不對（不夠熱／不夠冰）（-1）",1,""],["悶水／反潮（-1）",1,"主沙小"],["配件漏附（-1）",1,""],["漏液（-2）",2,""],["壓扁變形（-2）",2,"主沙小"],["封膜破（-2）",2,"飲"]]},
+];
+const STEPS=[{type:"veto"},...DIMS.map(d=>({type:"dim",d}))];
+
+const S={evaluator:"",store:"",cat:"",item:"",veto:new Set(),dims:{},manual:{},reason:new Set(),again:"",photos:[],step:0,pin:""};
+DIMS.forEach(d=>{S.dims[d.key]=new Set();S.manual[d.key]="";});
+try{const sv=JSON.parse(localStorage.getItem("hc_user")||"{}");if(sv.evaluator&&NAMES.includes(sv.evaluator))S.evaluator=sv.evaluator;if(sv.store)S.store=sv.store;}catch(e){}
+let hist=[];let mcp=null,assets=null,db=null,busy=false;const ADMIN="皮皮";
+const $=id=>document.getElementById(id);
+const isDrink=()=>S.item.startsWith("飲品");const cat=()=>S.item.slice(0,2);const GRP={"主餐":"主","沙拉":"沙","小點":"小","飲品":"飲"};const grp=()=>GRP[cat()]||"主";const vis=o=>!o[2]||o[2].includes(grp());const short=i=>i.slice(3);
+const menu=id=>MENU.find(m=>m[0]===id);
+function save(){try{localStorage.setItem("hc_user",JSON.stringify({evaluator:S.evaluator,store:S.store}));}catch(e){}}
+
+function chips(el,list,on,click,cls){el.textContent="";list.forEach(v=>{const n=Array.isArray(v)?v[0]:v;const b=document.createElement("button");b.type="button";b.className="chip"+(cls?cls(v):"");b.textContent=n;if(on(n))b.classList.add("on");b.addEventListener("click",()=>{click(n,v);renderAll();});el.appendChild(b);});}
+function dimScore(d){if(S.manual[d.key])return parseInt(S.manual[d.key][0],10);let ded=0,cap=5;d.opts.forEach(o=>{if(S.dims[d.key].has(o[0])){ded+=o[1];if(o[0].startsWith("有異味"))cap=2;}});return Math.max(1,Math.min(cap,5-ded));}
+function total(){if(!S.item)return null;const w=WEIGHTS[cat()]||WEIGHTS["飲品"];return Math.round(DIMS.map(dimScore).reduce((a,s,i)=>a+s*w[i],0)/5);}
+function judge(t){if(S.veto.size)return["不合格","bad"];if(t>=85)return["達標","ok"];if(t>=70)return["待改善","w"];return["複訓","bad"];}
+function toggleProblem(key,opts,name,multi){const set=S.dims[key];if(opts[0][0]===name||!multi){set.clear();set.add(name);return;}set.delete(opts[0][0]);set.has(name)?set.delete(name):set.add(name);}
+
+let cur="pin";
+function show(name){cur=name;document.querySelectorAll(".screen").forEach(s=>s.hidden=s.id!=="s-"+name);$("tabbar").hidden=name==="pin";document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===(name==="hist"?"hist":"home")));window.scrollTo({top:0});renderAll();}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>show(t.dataset.tab)));
+document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>show(b.dataset.go)));
+["logout","logout2"].forEach(id=>$(id).addEventListener("click",()=>{S.evaluator="";S.pin="";save();show("pin");}));
+$("scoreBack").addEventListener("click",()=>{if(S.step>0){S.step--;renderAll();}else show("items");});
+$("sumBack").addEventListener("click",()=>{S.step=STEPS.length-1;show("score");});
+$("prevBtn").addEventListener("click",()=>{if(S.step>0){S.step--;renderAll();window.scrollTo({top:0});}else show("items");});
+$("nextBtn").addEventListener("click",()=>{if(S.step<STEPS.length-1){S.step++;renderAll();window.scrollTo({top:0});}else show("sum");});
+
+// PIN pad
+(function(){const pad=$("pad");["1","2","3","4","5","6","7","8","9","清除","0","⌫"].forEach(k=>{const b=document.createElement("button");b.type="button";b.textContent=k;if(k==="清除")b.className="x";b.addEventListener("click",()=>{if(k==="清除")S.pin="";else if(k==="⌫")S.pin=S.pin.slice(0,-1);else if(S.pin.length<4)S.pin+=k;renderPin();if(S.pin.length===4){const who=pinMap()[S.pin];if(who){S.evaluator=who;S.pin="";save();show("home");}else{$("pinerr").textContent="PIN 不對，再試一次";S.pin="";setTimeout(renderPin,350);}}});pad.appendChild(b);});})();
+function renderPin(){[...$("dots").children].forEach((d,i)=>d.classList.toggle("f",i<S.pin.length));if(S.pin.length)$("pinerr").textContent="";}
+
+function renderHome(){
+  $("homeSub").textContent=`你是 ${S.evaluator}`;$("heroTitle").textContent=`嗨 ${S.evaluator}！`;$("heroPill").textContent=hist.length?`今天已送出 ${hist.length} 份`:"今天還沒送出";
+  const st=$("store");st.textContent="";STORES.forEach(([n,c,d])=>{const b=document.createElement("button");b.type="button";b.className="tile "+c+(S.store===n?" on":"");b.innerHTML=`<svg class="face"><use href="#eyes"/></svg><b>${n}</b><span>${d}</span>`;b.addEventListener("click",()=>{S.store=n;save();renderAll();});st.appendChild(b);});
+  $("catSub").textContent=S.store?`${S.store}有賣的才會出現`:"先選店";
+  const cs=$("cats");cs.textContent="";CATS.forEach(([n,c])=>{const count=S.store?MENU.filter(m=>m[1]===n&&m[2].includes(S.store)).length:0;const b=document.createElement("button");b.type="button";b.className="tile sm "+c;b.disabled=!S.store||!count;if(b.disabled)b.style.opacity=".4";b.innerHTML=`<b>${n}</b><span>${S.store?count+" 款":""}</span>`;b.addEventListener("click",()=>{S.cat=n;show("items");});cs.appendChild(b);});
+}
+function renderItems(){
+  const c=CATS.find(x=>x[0]===S.cat)||CATS[0];$("itemsTitle").textContent=S.cat;$("itemsSub").textContent=`${S.store}・點一下就開始評`;
+  const host=$("items");host.textContent="";MENU.filter(m=>m[1]===S.cat&&m[2].includes(S.store)).forEach(m=>{const b=document.createElement("button");b.type="button";b.className="tile sm "+c[1];b.innerHTML=`<b>${short(m[0])}</b><span>${m[3].length>26?m[3].slice(0,26)+"…":m[3]}</span>`;b.addEventListener("click",()=>{S.item=m[0];S.step=0;show("score");});host.appendChild(b);});
+}
+function ingrHTML(){const m=menu(S.item);if(!m)return"";return`<div class="ingr"><b>組成：</b><p>${m[3]}</p><p class="mem"><b>記憶點：</b>${m[4]}</p></div>`;}
+function renderScore(){
+  $("scoreItem").textContent=short(S.item);$("scoreSub").textContent=`${S.store}・${isDrink()?"一律正常甜正常冰，倒進透明杯看":"從中間切開，吃三口再評"}`;
+  const st=$("steps");st.textContent="";STEPS.forEach((s,i)=>{const b=document.createElement("i");if(i<S.step)b.className="done";if(i===S.step)b.className="cur";st.appendChild(b);});
+  const host=$("stepHost");host.textContent="";const step=STEPS[S.step];
+  if(step.type==="veto"){
+    host.innerHTML=`${ingrHTML()}<div class="dimhead" style="background:var(--rose)"><div><h2>一票否決</h2><p>沒有就直接下一步。有任何一項，這份餐判「不合格」。</p></div></div><div class="card"><div class="chips" id="vetoChips"></div><p class="muted" id="vetoNote" style="margin:10px 0 0;color:var(--bad);font-weight:700" hidden>已勾一票否決，各維度還是照實勾。</p></div>`;
+    chips($("vetoChips"),VETO.filter(v=>!v[1]||v[1].includes(grp())),n=>S.veto.has(n),n=>{S.veto.has(n)?S.veto.delete(n):S.veto.add(n);},()=>" bad");$("vetoNote").hidden=!S.veto.size;
+  }else{
+    const d=step.d,sc=dimScore(d);
+    host.innerHTML=`<div class="dimhead" style="background:${d.color}"><div><h2>${d.name}</h2><p>${d.look}</p></div><div class="bigscore">${sc}<small>${S.manual[d.key]?"手動":"自動分"}</small></div></div>
+      ${d.key==="por"?ingrHTML():""}
+      <div class="card"><p class="hint">沒問題就點「剛好」；有問題只點問題，會自動扣分。</p><div class="chips" id="dimChips"></div>
+      <details class="manual"><summary>覺得自動分不準？手動改分</summary><div class="chips" id="manChips"></div></details></div>`;
+    const opts=d.opts.filter(vis);
+    chips($("dimChips"),opts,n=>S.dims[d.key].has(n),n=>toggleProblem(d.key,opts,n,d.multi),o=>o[1]===0&&!o[0].startsWith("有異味")?" ok":"");
+    chips($("manChips"),MANUAL,n=>S.manual[d.key]===n,n=>{S.manual[d.key]=S.manual[d.key]===n?"":n;});
+    if(S.manual[d.key])host.querySelector("details").open=true;
+  }
+  $("prevBtn").textContent=S.step===0?"← 換品項":"上一步";$("nextBtn").textContent=S.step===STEPS.length-1?"看總分 →":"下一步 →";
+}
+function renderSum(){
+  const t=total(),[j,c]=judge(t);$("sumSub").textContent=`${S.store}・${short(S.item)}・${S.evaluator}`;
+  $("totalN").innerHTML=`${t}<small>/100</small>`;$("totalJ").innerHTML=`<span class="badge ${c}">${j}</span>`;
+  const w=WEIGHTS[cat()]||WEIGHTS["飲品"];const bars=$("bars");bars.textContent="";
+  DIMS.forEach((d,i)=>{const s=dimScore(d);const r=document.createElement("div");r.className="bar";r.innerHTML=`<span>${d.name} <span class="muted">×${w[i]}</span></span><div class="tr"><i style="width:${s*20}%;background:${d.color}"></i></div><b>${s}</b>`;bars.appendChild(r);});
+  const any=DIMS.some(d=>[...S.dims[d.key]].some(n=>n!==d.opts[0][0]));
+  $("reasonHint").textContent=any?"（有勾問題，請選原因，可複選）":"（沒勾問題可以跳過）";
+  chips($("reason"),REASONS,n=>S.reason.has(n),n=>{S.reason.has(n)?S.reason.delete(n):S.reason.add(n);});
+  chips($("again"),AGAIN,n=>S.again===n,n=>{S.again=S.again===n?"":n;});
+  $("submitBtn").disabled=busy;$("submitBtn").textContent=busy?"送出中…":"送出到 Notion";
+}
+function localSave(rec){hist.unshift(rec);try{localStorage.setItem("hc_local",JSON.stringify(hist.slice(0,200)));}catch(e){}}
+function exportText(){return hist.map(x=>`${x.who}｜${x.store}｜${x.item}｜總分 ${x.t}（${x.j}）｜${new Date(x.created).toLocaleString("zh-TW")}\n${JSON.stringify(x.props)}`).join("\n\n");}
+async function copyAll(){const t=exportText();const m=$("copyMsg");if(!t){m.textContent="還沒有紀錄";return;}try{await navigator.clipboard.writeText(t);m.textContent="複製好了，貼到 LINE 傳給皮皮";}catch(e){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");m.textContent="複製好了，貼到 LINE 傳給皮皮";}catch(e2){m.textContent="複製失敗，長按下面文字手動複製";}document.body.removeChild(ta);$("copyRaw").hidden=false;$("copyRaw").value=t;}}
+function renderHist(){
+  const h=$("hist");h.textContent="";$("histEmpty").hidden=!!hist.length;$("stN").textContent=hist.length;
+  const pend=hist.filter(x=>!x.synced);
+  $("stAvg").textContent=hist.length?Math.round(hist.reduce((a,x)=>a+x.t,0)/hist.length):"—";$("stPend").textContent=pend.length;
+  $("histSub").textContent=db?"大家送出的評分（已存在 App 裡）":"這台手機這次送出的評分";
+  $("pinBox").hidden=false;$("copyBox").hidden=!pend.length;
+  $("adminBox").hidden=!pend.length;$("syncBtn").disabled=busy||!pend.length;$("syncBtn").textContent=pend.length?`重送 ${pend.length} 筆到 Notion`:"都同步了";
+  hist.forEach(x=>{const d=document.createElement("div");d.className="hitem";d.innerHTML=`<div class="sc ${x.c}">${x.t}</div><div class="t"><b>${x.item}</b><span>${x.store}・${x.j}・${x.who}${x.synced?"":"・<b style='color:var(--warn)'>待同步</b>"}</span></div>${x.url?`<a href="${x.url}" target="_blank" rel="noopener">看紀錄</a>`:""}`;h.appendChild(d);});
+}
+async function pushNotion(props){const r=await fetch(window.HC_WEBHOOK||"/api/submit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({meta:{item:S.item,store:S.store,who:S.evaluator},props})});let j={};try{j=await r.json();}catch(e){}if(!r.ok||!j.ok){const e=new Error(j.error||("HTTP "+r.status));e.code="tool_error";throw e;}return j.url||"";}
+function persist(){try{localStorage.setItem("hc_local",JSON.stringify(hist.slice(0,200)));}catch(e){}}
+$("syncBtn").addEventListener("click",async()=>{
+  busy=true;renderHist();let ok=0,fail=0;
+  for(const x of hist.filter(x=>!x.synced)){try{x.url=await pushNotion(x.props);x.synced=true;ok++;}catch(err){fail++;$("syncMsg").textContent="有一筆失敗："+(err&&err.message||"").slice(0,120);}}
+  persist();busy=false;$("syncMsg").textContent=`完成：成功 ${ok} 筆${fail?`，失敗 ${fail} 筆`:""}`;renderHist();
+});
+async function savePin(){const a=$("pinNew").value.trim(),b=$("pinNew2").value.trim(),m=$("pinMsg");if(!/^\d{4}$/.test(a)){m.textContent="要 4 位數字";return;}if(a!==b){m.textContent="兩次輸入不一樣";return;}const map=pinMap();if(map[a]&&map[a]!==S.evaluator){m.textContent="這組 PIN 別人在用，換一組";return;}try{PINOV[S.evaluator]=a;localStorage.setItem("hc_pins",JSON.stringify(PINOV));$("pinNew").value="";$("pinNew2").value="";m.textContent="改好了，下次用 "+a+" 登入";}catch(e){m.textContent="存不了："+(e&&e.code||e&&e.message||"");}}
+function renderAll(){if(cur==="pin")renderPin();else if(cur==="home")renderHome();else if(cur==="items")renderItems();else if(cur==="score")renderScore();else if(cur==="sum")renderSum();else renderHist();}
+
+$("photoBtn").addEventListener("click",()=>$("photoInput").click());
+$("photoInput").addEventListener("change",async e=>{const files=[...e.target.files];if(!files.length)return;if(!assets){$("photoHint").textContent="這一版不上傳照片，請存在手機裡，之後交給皮皮。";e.target.value="";return;}$("photoHint").textContent="上傳中…";for(const f of files){try{const r=await assets.upload(await shrink(f));S.photos.push(r.url);}catch(err){$("photoHint").textContent="有照片上傳失敗："+(err&&err.code||"");}}$("photoHint").textContent=S.photos.length+" 張已上傳";renderPhotos();e.target.value="";});
+function renderPhotos(){const p=$("photos");p.textContent="";S.photos.forEach(u=>{const im=document.createElement("img");im.src=u;im.alt="";p.appendChild(im);});}
+function shrink(file){return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{const max=1600;let w=img.width,h=img.height;if(Math.max(w,h)>max){const r=max/Math.max(w,h);w=Math.round(w*r);h=Math.round(h*r);}const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);c.toBlob(b=>{URL.revokeObjectURL(url);b?res(new File([b],file.name.replace(/\.\w+$/,"")+".jpg",{type:"image/jpeg"})):rej(new Error("encode"));},"image/jpeg",0.82);};img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error("decode"));};img.src=url;});}
+
+function buildProps(){const p={};p["評論總結"]=$("summary").value.trim()||`${short(S.item)}｜${S.store}｜${S.evaluator}`;p["評測員"]=S.evaluator;p["店別"]=S.store;p["品項"]=S.item;if(S.veto.size)p["一票否決"]=[...S.veto];
+  DIMS.forEach(d=>{const sel=[...S.dims[d.key]];const prop=(d.propDrink&&isDrink())?d.propDrink:d.prop;if(d.multi){if(sel.length)p[prop]=sel;}else if(sel.length)p[prop]=sel[0];if(S.manual[d.key])p[d.manual]=S.manual[d.key];});
+  if(S.reason.size)p["扣分原因"]=[...S.reason];if(S.again)p["會想再點嗎"]=S.again;const m=parseFloat($("minutes").value);if(!isNaN(m))p["送達分鐘數"]=m;const w=parseFloat($("weight").value);if(!isNaN(w))p["實測重量（g）"]=w;if(S.photos.length)p["照片連結"]=S.photos.join("\n");return p;}
+function msg(el,text,cls,html){const m=$(el);m.hidden=false;m.className="msg "+(cls||"");if(html)m.innerHTML=html;else m.textContent=text;}
+$("submitBtn").addEventListener("click",async()=>{
+  busy=true;renderSum();const props=buildProps(),t=total(),[j,c]=judge(t);
+  const rec={item:short(S.item),store:S.store,who:S.evaluator,t,j,c,url:"",synced:false,created:Date.now(),props};
+  let err="";try{rec.url=await pushNotion(props);rec.synced=true;}catch(e){err=e&&e.message||"網路問題";}
+  localSave(rec);resetForm();show("home");
+  if(rec.synced)msg("connMsg","","ok",`已送進 Notion：${rec.store}・${rec.item}，總分 ${t}（${j}）。<a href="${rec.url}" target="_blank" rel="noopener">打開 Notion 紀錄</a>`);
+  else msg("connMsg","","",`沒送出（${err.slice(0,80)}），已存在這台手機：${rec.store}・${rec.item}，總分 ${t}。到「紀錄」頁按「重送」。`);
+  busy=false;renderAll();
+});
+function resetForm(){S.item="";S.step=0;S.veto.clear();DIMS.forEach(d=>{S.dims[d.key].clear();S.manual[d.key]="";});S.reason.clear();S.again="";S.photos=[];$("minutes").value="";$("weight").value="";$("summary").value="";$("photoHint").textContent="";$("sumMsg").hidden=true;renderPhotos();}
+
+show(S.evaluator?"home":"pin");
+try{hist=JSON.parse(localStorage.getItem("hc_local")||"[]");}catch(e){hist=[];}
+try{PINOV=JSON.parse(localStorage.getItem("hc_pins")||"{}");}catch(e){PINOV={};}
+mcp=true;$("pinSave").addEventListener("click",savePin);$("copyBtn").addEventListener("click",copyAll);
+renderAll();
+</script>
+
+</body></html>
