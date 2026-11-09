@@ -49,6 +49,12 @@ h2{font-size:17px;font-weight:700}
 .rsn b{display:block;font-size:15px}.rsn span{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.45}
 .rsn.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}.rsn.on span{color:var(--bg);opacity:.8}
 .chip.ok.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.chip small{display:block;font-size:12px;font-weight:400;opacity:.75;margin-top:1px}
+.sbar{display:flex;gap:8px;margin:0 0 12px;overflow-x:auto}
+.sbar button{flex:1;min-width:72px;border:2px solid var(--line);background:var(--panel);color:var(--ink);border-radius:14px;padding:8px 6px;font:inherit;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px}
+.sbar button small{font-weight:400;font-size:11.5px;color:var(--muted)}
+.sbar button.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}.sbar button.on small{color:var(--bg);opacity:.8}
+.note{margin-top:12px}.note textarea{min-height:56px;font-size:15px}
 .chip.bad.on{background:var(--bad);border-color:var(--bad);color:#fff}
 :is(.chip,.rsn,.tile,.btn,.tab,.avatar,select,input,textarea,summary):focus-visible{outline:3px solid var(--sky);outline-offset:2px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
@@ -152,9 +158,8 @@ label.lab:first-child{margin-top:0}
 <section class="screen" id="s-home" hidden>
   <div class="top"><div class="t"><h1>好初餐點評分</h1><div class="muted" id="homeSub"></div></div><button type="button" class="avatar" id="logout" title="換人登入"><svg><use href="#toast"/></svg></button></div>
   <div id="connMsg" class="msg" hidden></div>
-  <div class="hero"><svg class="m"><use href="#toast"/></svg><div><h1 id="heroTitle"></h1><p>勾問題就自動扣分，送出直接進 Notion。</p><span class="pill" id="heroPill"></span></div></div>
-  <div class="sec"><h2>這份餐來自 <small>先選店</small></h2><div class="tiles" id="store"></div></div>
-  <div class="sec"><h2>哪一類 <small id="catSub"></small></h2><div class="tiles" id="cats"></div></div>
+  <div class="hero"><svg class="m"><use href="#toast"/></svg><div><h1 id="heroTitle"></h1><p>選一個品項，有賣的店一起比。送出直接進 Notion。</p><span class="pill" id="heroPill"></span></div></div>
+  <div class="sec"><h2>哪一類 <small>點進去選品項</small></h2><div class="tiles" id="cats"></div></div>
 </section>
 
 <!-- ITEMS -->
@@ -166,6 +171,7 @@ label.lab:first-child{margin-top:0}
 <!-- SCORE -->
 <section class="screen" id="s-score" hidden>
   <div class="top"><button type="button" class="back" id="scoreBack" aria-label="返回">←</button><div class="t"><h2 id="scoreItem"></h2><div class="muted" id="scoreSub"></div></div></div>
+  <div class="sbar" id="sbar"></div>
   <div class="steps" id="steps"></div>
   <div id="stepHost"></div>
   <div class="nav"><button type="button" class="btn ghost" id="prevBtn">上一步</button><button type="button" class="btn dark" id="nextBtn">下一步 →</button></div>
@@ -175,6 +181,7 @@ label.lab:first-child{margin-top:0}
 <section class="screen" id="s-sum" hidden>
   <div class="top"><button type="button" class="back" id="sumBack" aria-label="返回">←</button><div class="t"><h2>確認後送出</h2><div class="muted" id="sumSub"></div></div></div>
   <div id="sumMsg" class="msg" hidden></div>
+  <div class="card" style="margin-bottom:12px"><h2 style="margin-bottom:8px">三店比一比 <small class="muted" style="font-weight:400">點店名切換，下面是那家的明細</small></h2><div class="sbar" id="sbar2" style="margin:0"></div></div>
   <div class="total"><div class="n" id="totalN">—</div><div><div id="totalJ"></div><div class="muted" style="color:inherit;opacity:.7;margin-top:4px">≥85 達標・70–84 待改善・&lt;70 複訓</div></div></div>
   <div class="card" style="margin-top:12px"><div class="bars" id="bars"></div></div>
   <div class="card">
@@ -194,6 +201,7 @@ label.lab:first-child{margin-top:0}
     <div class="photos" id="photos"></div>
   </div>
   <div class="nav"><button type="button" class="btn" id="submitBtn">送出到 Notion</button></div>
+  <p class="muted" style="text-align:center;margin-top:8px">有評的店會一起送出，一家一筆；沒碰的店不會送。</p>
 </section>
 
 <!-- HISTORY -->
@@ -217,14 +225,16 @@ label.lab:first-child{margin-top:0}
   <li>輸入自己的 4 位數 PIN：<b>Matt 0000</b>、<b>知言 1111</b>。這台手機之後會記得你，不用每次輸入。</li></ol></div>
 
   <div class="card"><h2>🍽️ 評一份餐（約 1–2 分鐘）</h2>
-  <ol><li><b>選店</b>：這份餐是哪一間店做的。</li>
-  <li><b>選分類 → 點品項</b>：只會出現那間店有賣的品項。</li>
+  <ol><li><b>選分類 → 點品項</b>：上方會出現有賣這款的店（例如 一店／中山／敦南），三店一起比。</li>
+  <li><b>切換店家</b>：點上方店名就換到那一家，已勾的不會不見。建議同一個維度三家輪流勾完再按下一步，比較好比。</li>
+  <li><b>內用／外帶</b>：第一頁先確認。一店預設內用、其他店預設外帶，不對就改。</li>
   <li><b>一票否決</b>：未熟、異物、做錯、包裝壞、主角沒放、酸敗。沒有就直接按「下一步」；有勾的話這份直接判不合格，但後面各項還是照實勾。</li>
-  <li><b>五個維度，一頁一個</b>：外觀 → 口感 → 風味 → 份量 → 外送。沒問題點「剛好」；有問題只點問題，分數會自動扣。右上角大數字就是這一項的分數。</li>
+  <li><b>一頁一個維度</b>：外觀 → 口感 → 風味 → 份量 → 外送（飲品沒有份量，容量冰量在外觀看）。沒問題點「剛好」；跟其他店差不多、選不出來點「說不上來」；有問題只點問題，分數會自動扣。選項下面的小字是它的意思。</li>
+  <li><b>自己描述</b>：每個維度下面都有一格，選項講不清楚的寫在這，例如「比二二乾一點，但還能接受」。</li>
   <li><b>覺得自動分不準</b>：點「覺得自動分不準？手動改分」選 1–5 分，並在最後的評論總結寫原因。</li>
-  <li><b>看總分</b>：最後一頁顯示總分和判定。</li>
-  <li><b>補充欄</b>：你覺得問題可能出在哪（用猜的）、會想再點嗎、評論總結（一句話寫最在意的點）、送達分鐘數、實測重量。重量只要負責該店的人填。</li>
-  <li><b>按「送出到 Notion」</b>：回到首頁出現綠色「已送進 Notion」就完成了。</li></ol></div>
+  <li><b>看總分</b>：最後一頁上方是三店分數並排，點店名看那家明細。</li>
+  <li><b>補充欄</b>：你覺得問題可能出在哪（用猜的）、會想再點嗎、評論總結（一句話寫最在意的點）、送達分鐘數、實測重量。每家店各填一次；重量由艾庭填。</li>
+  <li><b>按「送出 N 家到 Notion」</b>：有評的店一家一筆一起送，沒碰的店不會送。回到首頁出現綠色「已送進 Notion」就完成了。</li></ol></div>
 
   <div class="card"><h2>📋 紀錄頁</h2>
   <ul><li>看這台手機送過的評分、平均分。</li>
@@ -236,7 +246,7 @@ label.lab:first-child{margin-top:0}
   <div class="card"><h2>🗓️ 評測當天流程</h2>
   <ol><li><b>第一次先校準（10 分鐘）</b>：三人一起試評 1 份，對齊「偏鹹」「焦苦」要到什麼程度才勾。</li>
   <li><b>開箱、秤重、拍照</b>：送到馬上開箱，記下送達分鐘數。拍照和秤重都由艾庭統一做，其他人等開箱完直接試吃。</li>
-  <li><b>同品項並排</b>：三店同一款放一起，一次評一款。</li>
+  <li><b>同品項並排</b>：三店同一款放一起，一次評一款，在 App 上方切換店家對照著評。</li>
   <li><b>統一試吃</b>：先摸溫度、聞香氣 → 從中間切開，吃三口（邊緣、中間、另一邊）。順序：鹹的主餐 → 小點 → 甜的 → 飲品，換品項前喝水。飲品先倒進透明杯看顏色再喝。</li>
   <li><b>各自填 App</b>：填完前不討論、不看別人的分數。</li>
   <li><b>對齊討論</b>：同一維度差 2 分以上、或有人手動改分的才討論。談不攏由 Matt 決定。</li></ol></div>
@@ -259,29 +269,29 @@ label.lab:first-child{margin-top:0}
 
 <!-- STANDARD -->
 <section class="screen doc" id="s-std" hidden>
-  <div class="top"><div class="t"><h1>評分標準</h1><div class="muted">v0.4｜第一輪評測（11/16）後會再調整</div></div></div>
+  <div class="top"><div class="t"><h1>評分標準</h1><div class="muted">v0.5｜同品項三店並排比；第一輪評測（11/16）後會再調整</div></div></div>
 
   <div class="card"><h2>🧮 總分怎麼算</h2>
-  <p>每份餐看 5 個維度，每個維度從 <b>5 分</b>開始，勾一個問題扣 1 或 2 分，最低 1 分。都沒問題點「剛好」不扣分。</p>
+  <p>每份餐看 5 個維度（飲品 4 個），每個維度從 <b>5 分</b>開始，勾一個問題扣 1 或 2 分，最低 1 分。「剛好」和「說不上來／跟其他店沒差」都不扣分。</p>
   <p>5 個維度依類別權重換算成 <b>100 分</b>，App 自動算，評測員不用算。</p>
   <div class="judge"><span class="badge ok">≥ 85 達標</span><span class="badge w">70–84 待改善</span><span class="badge bad">&lt; 70 複訓</span><span class="badge bad">一票否決＝不合格</span></div>
   <p class="hint" style="margin-top:10px">例：燒醬雞吐司勾「上色不均」「焦苦」「偏鹹」→ 外觀 4、口感 3、風味 4、份量 5、外送 5 → 總分 80，待改善。</p></div>
 
   <div class="card"><h2>⚖️ 各類別最看重什麼</h2>
   <table><tr><th>維度</th><th>主餐</th><th>沙拉</th><th>小點</th><th>飲品</th></tr>
-  <tr><td>外觀</td><td>15</td><td>15</td><td>15</td><td>10</td></tr>
-  <tr><td>口感質地</td><td><b>30</b></td><td>20</td><td><b>35</b></td><td>15</td></tr>
-  <tr><td>風味調味</td><td>25</td><td><b>25</b></td><td>20</td><td><b>35</b></td></tr>
-  <tr><td>份量組成</td><td>15</td><td><b>25</b></td><td>15</td><td>20</td></tr>
+  <tr><td>外觀（飲品：外觀容量）</td><td>15</td><td>15</td><td>15</td><td>15</td></tr>
+  <tr><td>口感質地</td><td><b>30</b></td><td>20</td><td><b>35</b></td><td>25</td></tr>
+  <tr><td>風味調味</td><td>25</td><td><b>25</b></td><td>20</td><td><b>40</b></td></tr>
+  <tr><td>份量組成</td><td>15</td><td><b>25</b></td><td>15</td><td>不評</td></tr>
   <tr><td>外送狀態</td><td>15</td><td>15</td><td>15</td><td>20</td></tr></table>
-  <p class="hint" style="margin-top:8px">主餐＝吐司、押餅、三明治、漢堡；沙拉含餐盒。</p></div>
+  <p class="hint" style="margin-top:8px">主餐＝吐司、押餅、三明治、漢堡；沙拉含餐盒。飲品的容量、冰量是倒進透明杯看的，所以併進外觀，不另評份量。</p></div>
 
   <div class="card"><h2>👀 五個維度各看什麼</h2>
   <table><tr><th>維度</th><th>看什麼</th></tr>
   <tr><td>外觀</td><td>上色均勻、切面層次清楚、餡料居中不外漏；沙拉生菜不褐變；飲品看顏色、分層、杯身乾淨</td></tr>
   <tr><td>口感質地</td><td>熟度對、外酥內軟、不濕軟不乾硬、不吸油；飲品看濃稠、水感、氣泡、粉有沒有溶開</td></tr>
   <tr><td>風味調味</td><td>鹹甜酸辣剛好、醬量對、記憶點香氣吃得出來、沒有怪味；飲品看甜度、茶或咖啡濃淡</td></tr>
-  <tr><td>份量組成</td><td>配料齊全、比例對、數量對；飲品看容量、冰量、配料</td></tr>
+  <tr><td>份量組成</td><td>配料齊全、比例對、數量對（飲品不評，容量冰量在外觀看）</td></tr>
   <tr><td>外送狀態</td><td>到手溫度、沒悶水、沒壓壞、沒漏、有附吸管或攪拌棒（一店自取看拿到手的狀態）</td></tr></table></div>
 
   <div class="card"><h2>🚫 一票否決（出現任一項＝不合格）</h2>
@@ -322,7 +332,10 @@ label.lab:first-child{margin-top:0}
   <div class="card"><h2>🧭 容易搞混的判斷</h2>
   <ul><li><b>甜度</b>：點正常甜來無糖是「做錯」，勾一票否決；都是正常甜但比平常甜或淡，勾「偏甜」或「不夠甜」(-1)。</li>
   <li><b>同一個問題只扣一次</b>：餡料少一樣算份量；吃起來軟了算口感；是外送悶軟的算外送。</li>
-  <li><b>飲品的冰塊融化、氣泡消失、粉沒溶開</b>算口感，不算風味。</li>
+  <li><b>乾、柴、老怎麼分</b>：乾＝水分少要配飲料吞；柴＝肉纖維粗要嚼很久；老＝蛋或肉煎過頭變硬變韌。<b>硬</b>＝咬不下去，<b>韌</b>＝咬得下但扯不斷。</li>
+  <li><b>吃起來軟掉</b>只在口感勾「濕軟」；外送只看包裝裡有沒有水珠（悶水），不重複扣。</li>
+  <li><b>飲品冰塊融化有水感</b>是送太久造成的，算外送；氣泡不足、粉沒溶開算口感。</li>
+  <li><b>茶味太淡、咖啡味太淡</b>依飲品自動顯示，茶類看不到咖啡、咖啡類看不到茶。</li>
   <li><b>飲品一律點正常甜、正常冰</b>，三店才比得了。</li></ul></div>
 
   <div class="card"><h2>🔍 你覺得問題可能出在哪</h2>
@@ -441,35 +454,51 @@ const REASONS=[
  ["看不出來","猜不到原因就選這個，評測後大家討論差異時再一起判斷。"]];
 const AGAIN=["會","普通","不會"];
 const MANUAL=["5｜與你心中的理想一致","4｜小偏差","3｜可接受","2｜明顯不符","1｜不該出餐"];
-const WEIGHTS={"主餐":[15,30,25,15,15],"沙拉":[15,20,25,25,15],"小點":[15,35,20,15,15],"飲品":[10,15,35,20,20]};
+const WEIGHTS={"主餐":[15,30,25,15,15],"沙拉":[15,20,25,25,15],"小點":[15,35,20,15,15],"飲品":[15,25,40,0,20]};
+// 選項：[名稱（含扣分）, 扣幾分, 給哪類看（空＝全部；主沙小飲＋茶咖）, 白話定義]
+const OK0=[["剛好（±0）",0,""],["說不上來／跟其他店沒差（±0）",0,"","細節寫在下面的描述欄"]];
 const DIMS=[
- {key:"look",name:"外觀",color:"var(--lav)",prop:"外觀問題",manual:"外觀分數（選填：覺得自動分不準才填）",look:"上色均勻嗎？切面、擺盤清楚嗎？餡料居中嗎？（飲品看顏色、分層、奶霜）",multi:true,
-  opts:[["剛好（±0）",0,""],["上色不均（-1）",1,"主沙小"],["餡料偏一邊（-1）",1,"主"],["配料分布不均（-1）",1,"沙小"],["切面凌亂（-1）",1,"主"],["擺盤凌亂（-1）",1,"沙"],["生菜變色枯萎（-1）",1,"沙"],["外包裝油膩（-1）",1,"主沙小"],["顏色不對／分層異常（-1）",1,"飲"],["奶霜奶蓋塌掉（-1）",1,"飲"],["杯身封膜髒污（-1）",1,"飲"],["餡料散落在包裝內（-2）",2,"主"],["配料散落在包裝內（-2）",2,"沙小"],["形狀不完整／爆裂（-2）",2,"主沙小"]]},
- {key:"tex",name:"口感質地",color:"var(--butter)",prop:"口感問題",manual:"口感分數（選填：覺得自動分不準才填）",look:"熟度對嗎？有沒有焦？酥不酥、乾不乾？（飲品看濃淡、水感、氣泡、粉有沒有溶開）",multi:true,
-  opts:[["剛好（±0）",0,""],["濕軟／不酥（-1）",1,"主沙小"],["油膩／吸油（-1）",1,"主沙小"],["出水／不脆（-1）",1,"沙"],["太稀／太濃（-1）",1,"飲"],["冰塊融化有水感（-1）",1,"飲"],["氣泡消失（-1）",1,"飲"],["粉沒溶開／沉底（-1）",1,"飲"],["偏生／未熟透（-2）",2,"主沙小"],["過熟／乾柴（-2）",2,"主沙小"],["焦／有焦苦味（-2）",2,"主沙小"],["乾硬（-2）",2,"主小"],["黏團／糊掉（-2）",2,"主沙小"],["奶霜結塊／凝固（-2）",2,"飲"]]},
- {key:"fla",name:"風味調味",color:"var(--coral)",prop:"調味方向",propDrink:"飲品問題",manual:"風味分數（選填：覺得自動分不準才填）",look:"鹹甜酸辣剛好嗎？該有的香氣出來了嗎？有沒有怪味？",multi:true,
-  opts:[["剛好（±0）",0,""],["偏淡／偏輕（-1）",1,"主沙小"],["偏鹹（-1）",1,"主沙小"],["偏甜（-1）",1,""],["不夠甜（-1）",1,"飲"],["偏酸（-1）",1,"主沙小"],["偏辣（-1）",1,"主沙小"],["偏油（-1）",1,"主沙小"],["醬／粉太多（-1）",1,"主沙小"],["醬／粉太少（-1）",1,"主沙小"],["茶味／咖啡味太淡（-1）",1,"飲"],["太苦（-1）",1,"飲"],["太酸（-1）",1,"飲"],["太澀（-1）",1,"飲"],["奶味不足（-1）",1,"飲"],["香氣不足（-1）",1,""],["調味不均（-1）",1,"主沙小"],["膩口（-1）",1,""],["有異味（最高2分）",0,""]]},
- {key:"por",name:"份量組成",color:"var(--mint)",prop:"份量感受",manual:"份量分數（選填：覺得自動分不準才填）",look:"份量符合期待嗎？下面的組成都在嗎？（飲品看容量、冰量、配料）",multi:false,
-  opts:[["符合期待（±0）",0,""],["偏多（-1）",1,"主沙小"],["比例不對（-1）",1,"主沙小"],["偏少（-2）",2,"主沙小"],["配料太少（-1）",1,"飲"],["容量不足／冰太多（-2）",2,"飲"]]},
- {key:"del",name:"外送狀態",color:"var(--sky)",prop:"外送問題",manual:"外送分數（選填：覺得自動分不準才填）",look:"到手溫度對嗎？有沒有悶水、壓壞、漏液、少附東西？（一店自取，看拿到手的狀態）",multi:true,
-  opts:[["剛好（±0）",0,""],["溫度不對（不夠熱／不夠冰）（-1）",1,""],["悶水／反潮（-1）",1,"主沙小"],["配件漏附（-1）",1,""],["漏液（-2）",2,""],["壓扁變形（-2）",2,"主沙小"],["封膜破（-2）",2,"飲"]]},
+ {key:"look",name:"外觀",drinkName:"外觀容量",color:"var(--lav)",prop:"外觀問題",note:"外觀描述",manual:"外觀分數（選填：覺得自動分不準才填）",look:"上色均勻嗎？切面、擺盤清楚嗎？餡料居中嗎？",drinkLook:"倒進透明杯看：顏色、分層、奶霜，容量和冰量夠不夠",multi:true,
+  opts:[...OK0,["上色太淺（-1）",1,"主沙小","偏白、沒煎到金黃"],["上色太深（-1）",1,"主沙小","整體顏色太深，但還沒焦"],["上色不均（-1）",1,"主沙小","一邊深一邊淺"],["餡料偏一邊（-1）",1,"主"],["配料分布不均（-1）",1,"沙小"],["切面凌亂（-1）",1,"主"],["擺盤凌亂（-1）",1,"沙"],["生菜變色枯萎（-1）",1,"沙"],["外包裝油膩（-1）",1,"主沙小"],["形狀不完整（-2）",2,"主沙小","缺角、切歪"],["爆餡（-2）",2,"主沙小","餡料從邊邊擠出來"],["餡料散落在包裝內（-2）",2,"主"],["配料散落在包裝內（-2）",2,"沙小"],
+   ["顏色太深（-1）",1,"飲"],["顏色太淺（-1）",1,"飲"],["該分層沒分層（-1）",1,"飲"],["奶霜奶蓋塌掉（-1）",1,"飲"],["冰塊太多（-1）",1,"飲"],["容量不足（-2）",2,"飲","倒進杯子明顯比平常少"]]},
+ {key:"tex",name:"口感質地",color:"var(--butter)",prop:"口感問題",note:"口感描述",manual:"口感分數（選填：覺得自動分不準才填）",look:"熟度對嗎？有沒有焦？酥不酥、乾不乾？",drinkLook:"濃淡、氣泡、粉有沒有溶開、奶霜口感",multi:true,
+  opts:[...OK0,["濕軟（-1）",1,"主沙小","整體吸水軟掉"],["外皮不酥（-1）",1,"主小","只有外層該脆的地方沒脆"],["吸油（-1）",1,"主沙小","咬下去油會滲出來"],["生菜出水（-1）",1,"沙"],["生菜不脆（-1）",1,"沙"],["起司沒融化（-1）",1,"主"],["偏生／未熟透（-2）",2,"主沙小","中心冷、蛋液沒凝固"],["乾（-2）",2,"主沙小","水分少，要配飲料才吞得下"],["柴（-2）",2,"主沙小","肉的纖維粗，要嚼很久"],["老（-2）",2,"主沙小","蛋或肉煎過頭，變硬變韌"],["硬（-2）",2,"主小","咬不下去"],["韌（-2）",2,"主沙小","咬得下但扯不斷"],["表面焦黑（-2）",2,"主沙小","看得到焦黑"],["吃得到焦苦味（-2）",2,"主沙小"],["結團黏牙（-2）",2,"主沙小","麵糊、薯泥黏成一坨"],["糊爛（-2）",2,"主沙小","整個失去形狀"],
+   ["太稀（-1）",1,"飲"],["太濃（-1）",1,"飲"],["粉沒溶開／沉底（-1）",1,"飲"],["氣泡不足（-1）",1,"飲"],["奶霜結塊（-2）",2,"飲"]]},
+ {key:"fla",name:"風味調味",color:"var(--coral)",prop:"調味方向",propDrink:"飲品問題",note:"風味描述",manual:"風味分數（選填：覺得自動分不準才填）",look:"鹹甜酸辣剛好嗎？該有的香氣出來了嗎？有沒有怪味？",drinkLook:"甜度、茶味或咖啡味、苦酸澀、奶味、香氣",multi:true,
+  opts:[...OK0,["偏淡／偏輕（-1）",1,"主沙小"],["偏鹹（-1）",1,"主沙小"],["偏甜（-1）",1,"主沙小"],["偏酸（-1）",1,"主沙小"],["偏辣（-1）",1,"主沙小"],["偏油（-1）",1,"主沙小","吃起來油膩"],["醬太多（-1）",1,"主沙小"],["醬太少（-1）",1,"主沙小"],["粉太多（-1）",1,"主沙小","椒鹽粉、花生粉、起司粉等"],["粉太少（-1）",1,"主沙小","椒鹽粉、花生粉、起司粉等"],["香氣不足（-1）",1,"主沙小"],["調味不均（-1）",1,"主沙小","邊緣和中間味道不一樣"],["膩口（-1）",1,"主沙小"],
+   ["太甜（-1）",1,"飲"],["不夠甜（-1）",1,"飲"],["茶味太淡（-1）",1,"茶"],["咖啡味太淡（-1）",1,"咖"],["太苦（-1）",1,"飲"],["太酸（-1）",1,"飲"],["太澀（-1）",1,"飲"],["奶味不足（-1）",1,"飲"],["香氣不足（-1）",1,"飲"],
+   ["有異味（最高2分）",0,"","油耗、腥味、冰箱味"]]},
+ {key:"por",name:"份量組成",color:"var(--mint)",prop:"份量感受",note:"份量描述",manual:"份量分數（選填：覺得自動分不準才填）",look:"份量符合期待嗎？下面的組成都在嗎？",multi:false,food:true,
+  opts:[["符合期待（±0）",0,""],OK0[1],["偏多（-1）",1,""],["餡料太少（-1）",1,"","皮或吐司太多"],["某樣配料太多（-1）",1,""],["偏少（-2）",2,""]]},
+ {key:"del",name:"外送狀態",color:"var(--sky)",prop:"外送問題",note:"外送描述",manual:"外送分數（選填：覺得自動分不準才填）",look:"到手溫度對嗎？有沒有悶水、壓壞、漏液、少附東西？（內用看拿到手的狀態）",multi:true,
+  opts:[...OK0,["不夠熱（-1）",1,""],["不夠冰（-1）",1,"沙飲"],["冰塊融化有水感（-1）",1,"飲"],["悶水（-1）",1,"主沙小","包裝裡有水珠"],["配件漏附（-1）",1,"","吸管、攪拌棒、醬包"],["漏液（-2）",2,""],["壓扁變形（-2）",2,"主沙小"],["封膜破（-2）",2,"飲"]]},
 ];
-const STEPS=[{type:"veto"},...DIMS.map(d=>({type:"dim",d}))];
-
-const S={evaluator:"",store:"",cat:"",item:"",veto:new Set(),dims:{},manual:{},reason:new Set(),again:"",photos:[],step:0,pin:""};
-DIMS.forEach(d=>{S.dims[d.key]=new Set();S.manual[d.key]="";});
-try{const sv=JSON.parse(localStorage.getItem("hc_user")||"{}");if(sv.evaluator&&NAMES.includes(sv.evaluator))S.evaluator=sv.evaluator;if(sv.store)S.store=sv.store;}catch(e){}
+const PER=["veto","dims","manual","note","reason","again","mode","summary","minutes","weight"];
+function blank(st){const o={veto:new Set(),dims:{},manual:{},note:{},reason:new Set(),again:"",mode:st==="一店"?"內用":"外帶",summary:"",minutes:"",weight:""};DIMS.forEach(d=>{o.dims[d.key]=new Set();o.manual[d.key]="";o.note[d.key]="";});return o;}
+const S={evaluator:"",store:"",cat:"",item:"",ev:{},step:0,photos:[],pin:"",...blank("")};
+try{const sv=JSON.parse(localStorage.getItem("hc_user")||"{}");if(sv.evaluator&&NAMES.includes(sv.evaluator))S.evaluator=sv.evaluator;}catch(e){}
 let hist=[];let mcp=null,assets=null,db=null,busy=false;const ADMIN="皮皮";
 const $=id=>document.getElementById(id);
-const isDrink=()=>S.item.startsWith("飲品");const cat=()=>S.item.slice(0,2);const GRP={"主餐":"主","沙拉":"沙","小點":"小","飲品":"飲"};const grp=()=>GRP[cat()]||"主";const vis=o=>!o[2]||o[2].includes(grp());const short=i=>i.slice(3);
+const isDrink=()=>S.item.startsWith("飲品");const cat=()=>S.item.slice(0,2);const GRP={"主餐":"主","沙拉":"沙","小點":"小","飲品":"飲"};const grp=()=>GRP[cat()]||"主";
+const tags=()=>{const t=[grp()];if(isDrink()){if(/珈琲/.test(S.item))t.push("咖");if(/茶|抹黑/.test(S.item))t.push("茶");}return t;};
+const vis=o=>!o[2]||tags().some(t=>o[2].includes(t));const short=i=>i.slice(3);
+const isZero=o=>o[1]===0&&!o[0].startsWith("有異味");
+const dimsFor=()=>DIMS.filter(d=>!(d.food&&isDrink()));
+const steps=()=>[{type:"veto"},...dimsFor().map(d=>({type:"dim",d}))];
+const dname=d=>isDrink()&&d.drinkName||d.name;
 const menu=id=>MENU.find(m=>m[0]===id);
-function save(){try{localStorage.setItem("hc_user",JSON.stringify({evaluator:S.evaluator,store:S.store}));}catch(e){}}
+function save(){try{localStorage.setItem("hc_user",JSON.stringify({evaluator:S.evaluator}));}catch(e){}}
+function stash(){if(!S.store)return;const o=S.ev[S.store]||{};PER.forEach(k=>o[k]=S[k]);S.ev[S.store]=o;}
+function useStore(st){stash();S.store=st;const o=S.ev[st]||blank(st);S.ev[st]=o;PER.forEach(k=>S[k]=o[k]);}
+function startItem(id){S.store="";S.ev={};S.item=id;S.step=0;S.photos=[];useStore(menu(id)[2][0]);}
+const touched=o=>!!o&&(o.veto.size>0||DIMS.some(d=>o.dims[d.key].size>0));
 
-function chips(el,list,on,click,cls){el.textContent="";list.forEach(v=>{const n=Array.isArray(v)?v[0]:v;const b=document.createElement("button");b.type="button";b.className="chip"+(cls?cls(v):"");b.textContent=n;if(on(n))b.classList.add("on");b.addEventListener("click",()=>{click(n,v);renderAll();});el.appendChild(b);});}
-function dimScore(d){if(S.manual[d.key])return parseInt(S.manual[d.key][0],10);let ded=0,cap=5;d.opts.forEach(o=>{if(S.dims[d.key].has(o[0])){ded+=o[1];if(o[0].startsWith("有異味"))cap=2;}});return Math.max(1,Math.min(cap,5-ded));}
-function total(){if(!S.item)return null;const w=WEIGHTS[cat()]||WEIGHTS["飲品"];return Math.round(DIMS.map(dimScore).reduce((a,s,i)=>a+s*w[i],0)/5);}
-function judge(t){if(S.veto.size)return["不合格","bad"];if(t>=85)return["達標","ok"];if(t>=70)return["待改善","w"];return["複訓","bad"];}
-function toggleProblem(key,opts,name,multi){const set=S.dims[key];if(opts[0][0]===name||!multi){set.clear();set.add(name);return;}set.delete(opts[0][0]);set.has(name)?set.delete(name):set.add(name);}
+function chips(el,list,on,click,cls){el.textContent="";list.forEach(v=>{const n=Array.isArray(v)?v[0]:v;const b=document.createElement("button");b.type="button";b.className="chip"+(cls?cls(v):"");b.textContent=n;if(Array.isArray(v)&&v[3]){const s=document.createElement("small");s.textContent=v[3];b.appendChild(s);}if(on(n))b.classList.add("on");b.addEventListener("click",()=>{click(n,v);renderAll();});el.appendChild(b);});}
+function dimScore(d,o=S){if(o.manual[d.key])return parseInt(o.manual[d.key][0],10);let ded=0,cap=5;d.opts.forEach(x=>{if(o.dims[d.key].has(x[0])){ded+=x[1];if(x[0].startsWith("有異味"))cap=2;}});return Math.max(1,Math.min(cap,5-ded));}
+function total(o=S){if(!S.item)return null;const w=WEIGHTS[cat()]||WEIGHTS["飲品"];return Math.round(DIMS.map(d=>dimScore(d,o)).reduce((a,s,i)=>a+s*w[i],0)/5);}
+function judge(t,o=S){if(o.veto.size)return["不合格","bad"];if(t>=85)return["達標","ok"];if(t>=70)return["待改善","w"];return["複訓","bad"];}
+function toggleProblem(key,opts,name,multi){const set=S.dims[key];const o=opts.find(x=>x[0]===name);if(!multi||isZero(o)){const had=set.has(name);set.clear();if(!had||!multi)set.add(name);return;}opts.filter(isZero).forEach(x=>set.delete(x[0]));set.has(name)?set.delete(name):set.add(name);}
+function storeBar(el){el.textContent="";stash();menu(S.item)[2].forEach(st=>{const o=S.ev[st];const b=document.createElement("button");b.type="button";if(st===S.store)b.className="on";const t=touched(o)?total(o):null;b.innerHTML=`<span></span><small>${t==null?"還沒評":t+" 分・"+judge(t,o)[0]}</small>`;b.firstChild.textContent=st+"・"+(o||blank(st)).mode;b.addEventListener("click",()=>{useStore(st);renderAll();});el.appendChild(b);});}
 
 let cur="pin";
 function show(name){cur=name;document.querySelectorAll(".screen").forEach(s=>s.hidden=s.id!=="s-"+name);$("tabbar").hidden=name==="pin";document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===({hist:"hist",guide:"guide",std:"std"}[name]||"home")));window.scrollTo({top:0});renderAll();}
@@ -477,9 +506,9 @@ document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>show
 document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>show(b.dataset.go)));
 ["logout","logout2"].forEach(id=>$(id).addEventListener("click",()=>{S.evaluator="";S.pin="";save();show("pin");}));
 $("scoreBack").addEventListener("click",()=>{if(S.step>0){S.step--;renderAll();}else show("items");});
-$("sumBack").addEventListener("click",()=>{S.step=STEPS.length-1;show("score");});
+$("sumBack").addEventListener("click",()=>{S.step=steps().length-1;show("score");});
 $("prevBtn").addEventListener("click",()=>{if(S.step>0){S.step--;renderAll();window.scrollTo({top:0});}else show("items");});
-$("nextBtn").addEventListener("click",()=>{if(S.step<STEPS.length-1){S.step++;renderAll();window.scrollTo({top:0});}else show("sum");});
+$("nextBtn").addEventListener("click",()=>{if(S.step<steps().length-1){S.step++;renderAll();window.scrollTo({top:0});}else show("sum");});
 
 // PIN pad
 (function(){const pad=$("pad");["1","2","3","4","5","6","7","8","9","清除","0","⌫"].forEach(k=>{const b=document.createElement("button");b.type="button";b.textContent=k;if(k==="清除")b.className="x";b.addEventListener("click",()=>{if(k==="清除")S.pin="";else if(k==="⌫")S.pin=S.pin.slice(0,-1);else if(S.pin.length<4)S.pin+=k;renderPin();if(S.pin.length===4){const who=pinMap()[S.pin];if(who){S.evaluator=who;S.pin="";save();show("home");}else{$("pinerr").textContent="PIN 不對，再試一次";S.pin="";setTimeout(renderPin,350);}}});pad.appendChild(b);});})();
@@ -487,45 +516,49 @@ function renderPin(){[...$("dots").children].forEach((d,i)=>d.classList.toggle("
 
 function renderHome(){
   $("homeSub").textContent=`你是 ${S.evaluator}`;$("heroTitle").textContent=`嗨 ${S.evaluator}！`;$("heroPill").textContent=hist.length?`今天已送出 ${hist.length} 份`:"今天還沒送出";
-  const st=$("store");st.textContent="";STORES.forEach(([n,c,d])=>{const b=document.createElement("button");b.type="button";b.className="tile "+c+(S.store===n?" on":"");b.innerHTML=`<svg class="face"><use href="#eyes"/></svg><b>${n}</b><span>${d}</span>`;b.addEventListener("click",()=>{S.store=n;save();renderAll();});st.appendChild(b);});
-  $("catSub").textContent=S.store?`${S.store}有賣的才會出現`:"先選店";
-  const cs=$("cats");cs.textContent="";CATS.forEach(([n,c])=>{const count=S.store?MENU.filter(m=>m[1]===n&&m[2].includes(S.store)).length:0;const b=document.createElement("button");b.type="button";b.className="tile sm "+c;b.disabled=!S.store||!count;if(b.disabled)b.style.opacity=".4";b.innerHTML=`<b>${n}</b><span>${S.store?count+" 款":""}</span>`;b.addEventListener("click",()=>{S.cat=n;show("items");});cs.appendChild(b);});
+  const cs=$("cats");cs.textContent="";CATS.forEach(([n,c])=>{const count=MENU.filter(m=>m[1]===n).length;const b=document.createElement("button");b.type="button";b.className="tile sm "+c;b.innerHTML=`<b>${n}</b><span>${count} 款</span>`;b.addEventListener("click",()=>{S.cat=n;show("items");});cs.appendChild(b);});
 }
 function renderItems(){
-  const c=CATS.find(x=>x[0]===S.cat)||CATS[0];$("itemsTitle").textContent=S.cat;$("itemsSub").textContent=`${S.store}・點一下就開始評`;
-  const host=$("items");host.textContent="";MENU.filter(m=>m[1]===S.cat&&m[2].includes(S.store)).forEach(m=>{const b=document.createElement("button");b.type="button";b.className="tile sm "+c[1];b.innerHTML=`<b>${short(m[0])}</b><span>${m[3].length>26?m[3].slice(0,26)+"…":m[3]}</span>`;b.addEventListener("click",()=>{S.item=m[0];S.step=0;show("score");});host.appendChild(b);});
+  const c=CATS.find(x=>x[0]===S.cat)||CATS[0];$("itemsTitle").textContent=S.cat;$("itemsSub").textContent="點一下開始，有賣的店會一起比";
+  const host=$("items");host.textContent="";MENU.filter(m=>m[1]===S.cat).forEach(m=>{const b=document.createElement("button");b.type="button";b.className="tile sm "+c[1];b.innerHTML=`<b>${short(m[0])}</b><span>${m[3].length>26?m[3].slice(0,26)+"…":m[3]}</span>`;b.addEventListener("click",()=>{startItem(m[0]);show("score");});host.appendChild(b);});
 }
 function ingrHTML(){const m=menu(S.item);if(!m)return"";return`<div class="ingr"><b>組成：</b><p>${m[3]}</p><p class="mem"><b>記憶點：</b>${m[4]}</p></div>`;}
 function renderScore(){
-  $("scoreItem").textContent=short(S.item);$("scoreSub").textContent=`${S.store}・${isDrink()?"一律正常甜正常冰，倒進透明杯看":"從中間切開，吃三口再評"}`;
-  const st=$("steps");st.textContent="";STEPS.forEach((s,i)=>{const b=document.createElement("i");if(i<S.step)b.className="done";if(i===S.step)b.className="cur";st.appendChild(b);});
-  const host=$("stepHost");host.textContent="";const step=STEPS[S.step];
+  storeBar($("sbar"));const ST=steps();if(S.step>=ST.length)S.step=ST.length-1;
+  $("scoreItem").textContent=short(S.item);$("scoreSub").textContent=`現在評：${S.store}（${S.mode}）・${isDrink()?"一律正常甜正常冰，倒進透明杯看":"從中間切開，吃三口再評"}`;
+  const st=$("steps");st.textContent="";ST.forEach((s,i)=>{const b=document.createElement("i");if(i<S.step)b.className="done";if(i===S.step)b.className="cur";st.appendChild(b);});
+  const host=$("stepHost");host.textContent="";const step=ST[S.step];
   if(step.type==="veto"){
-    host.innerHTML=`${ingrHTML()}<div class="dimhead" style="background:var(--rose)"><div><h2>一票否決</h2><p>沒有就直接下一步。有任何一項，這份餐判「不合格」。</p></div></div><div class="card"><div class="chips" id="vetoChips"></div><p class="muted" id="vetoNote" style="margin:10px 0 0;color:var(--bad);font-weight:700" hidden>已勾一票否決，各維度還是照實勾。</p></div>`;
+    host.innerHTML=`${ingrHTML()}<div class="card" style="margin-bottom:12px"><h2 style="margin-bottom:8px">${S.store}這份是</h2><div class="chips" id="modeChips"></div><p class="hint" style="margin:8px 0 0">一店通常是內用，其他店外帶；不對就改。</p></div><div class="dimhead" style="background:var(--rose)"><div><h2>一票否決</h2><p>沒有就直接下一步。有任何一項，這份餐判「不合格」。</p></div></div><div class="card"><div class="chips" id="vetoChips"></div><p class="muted" id="vetoNote" style="margin:10px 0 0;color:var(--bad);font-weight:700" hidden>已勾一票否決，各維度還是照實勾。</p></div>`;
+    chips($("modeChips"),["內用","外帶"],n=>S.mode===n,n=>{S.mode=n;});
     chips($("vetoChips"),VETO.filter(v=>!v[1]||v[1].includes(grp())),n=>S.veto.has(n),n=>{S.veto.has(n)?S.veto.delete(n):S.veto.add(n);},()=>" bad");$("vetoNote").hidden=!S.veto.size;
   }else{
     const d=step.d,sc=dimScore(d);
-    host.innerHTML=`<div class="dimhead" style="background:${d.color}"><div><h2>${d.name}</h2><p>${d.look}</p></div><div class="bigscore">${sc}<small>${S.manual[d.key]?"手動":"自動分"}</small></div></div>
+    host.innerHTML=`<div class="dimhead" style="background:${d.color}"><div><h2>${dname(d)}</h2><p>${isDrink()&&d.drinkLook||d.look}</p></div><div class="bigscore">${sc}<small>${S.manual[d.key]?"手動":"自動分"}</small></div></div>
       ${d.key==="por"?ingrHTML():""}
-      <div class="card"><p class="hint">沒問題就點「剛好」；有問題只點問題，會自動扣分。</p><div class="chips" id="dimChips"></div>
+      <div class="card"><p class="hint">沒問題點「剛好」；跟其他店差不多、選不出來就點「說不上來」。有問題只點問題，會自動扣分。上面切換店家可以對照著評。</p><div class="chips" id="dimChips"></div>
+      <div class="note"><label class="lab" for="noteBox">自己描述（選填）：選項講不清楚的寫這裡</label><textarea id="noteBox" placeholder="例：比二二乾一點，但還能接受"></textarea></div>
       <details class="manual"><summary>覺得自動分不準？手動改分</summary><div class="chips" id="manChips"></div></details></div>`;
     const opts=d.opts.filter(vis);
-    chips($("dimChips"),opts,n=>S.dims[d.key].has(n),n=>toggleProblem(d.key,opts,n,d.multi),o=>o[1]===0&&!o[0].startsWith("有異味")?" ok":"");
+    chips($("dimChips"),opts,n=>S.dims[d.key].has(n),n=>toggleProblem(d.key,opts,n,d.multi),o=>isZero(o)?" ok":"");
+    const nb=$("noteBox");nb.value=S.note[d.key]||"";nb.addEventListener("input",()=>{S.note[d.key]=nb.value;});
     chips($("manChips"),MANUAL,n=>S.manual[d.key]===n,n=>{S.manual[d.key]=S.manual[d.key]===n?"":n;});
     if(S.manual[d.key])host.querySelector("details").open=true;
   }
-  $("prevBtn").textContent=S.step===0?"← 換品項":"上一步";$("nextBtn").textContent=S.step===STEPS.length-1?"看總分 →":"下一步 →";
+  $("prevBtn").textContent=S.step===0?"← 換品項":"上一步";$("nextBtn").textContent=S.step===ST.length-1?"看總分 →":"下一步 →";
 }
 function renderSum(){
-  const t=total(),[j,c]=judge(t);$("sumSub").textContent=`${S.store}・${short(S.item)}・${S.evaluator}`;
+  storeBar($("sbar2"));const t=total(),[j,c]=judge(t);$("sumSub").textContent=`${short(S.item)}・現在看 ${S.store}（${S.mode}）・${S.evaluator}`;
   $("totalN").innerHTML=`${t}<small>/100</small>`;$("totalJ").innerHTML=`<span class="badge ${c}">${j}</span>`;
   const w=WEIGHTS[cat()]||WEIGHTS["飲品"];const bars=$("bars");bars.textContent="";
-  DIMS.forEach((d,i)=>{const s=dimScore(d);const r=document.createElement("div");r.className="bar";r.innerHTML=`<span>${d.name} <span class="muted">×${w[i]}</span></span><div class="tr"><i style="width:${s*20}%;background:${d.color}"></i></div><b>${s}</b>`;bars.appendChild(r);});
-  const any=DIMS.some(d=>[...S.dims[d.key]].some(n=>n!==d.opts[0][0]));
+  DIMS.forEach((d,i)=>{if(!w[i])return;const s=dimScore(d);const r=document.createElement("div");r.className="bar";r.innerHTML=`<span>${dname(d)} <span class="muted">×${w[i]}</span></span><div class="tr"><i style="width:${s*20}%;background:${d.color}"></i></div><b>${s}</b>`;bars.appendChild(r);});
+  const any=DIMS.some(d=>d.opts.some(o=>!isZero(o)&&S.dims[d.key].has(o[0])));
   $("reasonHint").textContent=any?"（可複選）":"（這份沒勾問題，可以跳過）";
   {const el=$("reason");el.textContent="";REASONS.forEach(([n,d])=>{const b=document.createElement("button");b.type="button";b.className="rsn"+(S.reason.has(n)?" on":"");b.innerHTML="<b></b><span></span>";b.firstChild.textContent=n;b.lastChild.textContent=d;b.addEventListener("click",()=>{if(S.reason.has(n))S.reason.delete(n);else{if(n==="看不出來")S.reason.clear();else S.reason.delete("看不出來");S.reason.add(n);}renderAll();});el.appendChild(b);});}
   chips($("again"),AGAIN,n=>S.again===n,n=>{S.again=S.again===n?"":n;});
-  $("submitBtn").disabled=busy;$("submitBtn").textContent=busy?"送出中…":"送出到 Notion";
+  $("summary").value=S.summary;$("minutes").value=S.minutes;$("weight").value=S.weight;
+  const n=menu(S.item)[2].filter(st=>touched(S.ev[st])).length;
+  $("submitBtn").disabled=busy||!n;$("submitBtn").textContent=busy?"送出中…":n?`送出 ${n} 家到 Notion`:"還沒評任何一家";
 }
 function localSave(rec){hist.unshift(rec);try{localStorage.setItem("hc_local",JSON.stringify(hist.slice(0,200)));}catch(e){}}
 function exportText(){return hist.map(x=>`${x.who}｜${x.store}｜${x.item}｜總分 ${x.t}（${x.j}）｜${new Date(x.created).toLocaleString("zh-TW")}\n${JSON.stringify(x.props)}`).join("\n\n");}
@@ -539,7 +572,7 @@ function renderHist(){
   $("adminBox").hidden=!pend.length;$("syncBtn").disabled=busy||!pend.length;$("syncBtn").textContent=pend.length?`重送 ${pend.length} 筆到 Notion`:"都同步了";
   hist.forEach(x=>{const d=document.createElement("div");d.className="hitem";d.innerHTML=`<div class="sc ${x.c}">${x.t}</div><div class="t"><b>${x.item}</b><span>${x.store}・${x.j}・${x.who}${x.synced?"":"・<b style='color:var(--warn)'>待同步</b>"}</span></div>${x.url?`<a href="${x.url}" target="_blank" rel="noopener">看紀錄</a>`:""}`;h.appendChild(d);});
 }
-async function pushNotion(props){const r=await fetch(window.HC_WEBHOOK||"/api/submit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({meta:{item:S.item,store:S.store,who:S.evaluator},props})});let j={};try{j=await r.json();}catch(e){}if(!r.ok||!j.ok){const e=new Error(j.error||("HTTP "+r.status));e.code="tool_error";throw e;}return j.url||"";}
+async function pushNotion(props){const r=await fetch(window.HC_WEBHOOK||"/api/submit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({meta:{item:props["品項"],store:props["店別"],who:props["評測員"]},props})});let j={};try{j=await r.json();}catch(e){}if(!r.ok||!j.ok){const e=new Error(j.error||("HTTP "+r.status));e.code="tool_error";throw e;}return j.url||"";}
 function persist(){try{localStorage.setItem("hc_local",JSON.stringify(hist.slice(0,200)));}catch(e){}}
 $("syncBtn").addEventListener("click",async()=>{
   busy=true;renderHist();let ok=0,fail=0;
@@ -554,24 +587,27 @@ $("photoInput").addEventListener("change",async e=>{const files=[...e.target.fil
 function renderPhotos(){const p=$("photos");p.textContent="";S.photos.forEach(u=>{const im=document.createElement("img");im.src=u;im.alt="";p.appendChild(im);});}
 function shrink(file){return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{const max=1600;let w=img.width,h=img.height;if(Math.max(w,h)>max){const r=max/Math.max(w,h);w=Math.round(w*r);h=Math.round(h*r);}const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);c.toBlob(b=>{URL.revokeObjectURL(url);b?res(new File([b],file.name.replace(/\.\w+$/,"")+".jpg",{type:"image/jpeg"})):rej(new Error("encode"));},"image/jpeg",0.82);};img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error("decode"));};img.src=url;});}
 
-function buildProps(){const p={};p["評論總結"]=$("summary").value.trim()||`${short(S.item)}｜${S.store}｜${S.evaluator}`;p["評測員"]=S.evaluator;p["店別"]=S.store;p["品項"]=S.item;if(S.veto.size)p["一票否決"]=[...S.veto];
-  DIMS.forEach(d=>{const sel=[...S.dims[d.key]];const prop=(d.propDrink&&isDrink())?d.propDrink:d.prop;if(d.multi){if(sel.length)p[prop]=sel;}else if(sel.length)p[prop]=sel[0];if(S.manual[d.key])p[d.manual]=S.manual[d.key];});
-  if(S.reason.size)p["扣分原因"]=[...S.reason];if(S.again)p["會想再點嗎"]=S.again;const m=parseFloat($("minutes").value);if(!isNaN(m))p["送達分鐘數"]=m;const w=parseFloat($("weight").value);if(!isNaN(w))p["實測重量（g）"]=w;if(S.photos.length)p["照片連結"]=S.photos.join("\n");return p;}
+function buildProps(o,st){const p={};p["評論總結"]=(o.summary||"").trim()||`${short(S.item)}｜${st}｜${S.evaluator}`;p["評測員"]=S.evaluator;p["店別"]=st;p["品項"]=S.item;p["取餐方式"]=o.mode;if(o.veto.size)p["一票否決"]=[...o.veto];
+  DIMS.forEach(d=>{const sel=[...o.dims[d.key]];const prop=(d.propDrink&&isDrink())?d.propDrink:d.prop;if(d.multi){if(sel.length)p[prop]=sel;}else if(sel.length)p[prop]=sel[0];if(o.manual[d.key])p[d.manual]=o.manual[d.key];if((o.note[d.key]||"").trim())p[d.note]=o.note[d.key].trim();});
+  if(o.reason.size)p["扣分原因"]=[...o.reason];if(o.again)p["會想再點嗎"]=o.again;const m=parseFloat(o.minutes);if(!isNaN(m))p["送達分鐘數"]=m;const w=parseFloat(o.weight);if(!isNaN(w))p["實測重量（g）"]=w;if(S.photos.length)p["照片連結"]=S.photos.join("\n");return p;}
 function msg(el,text,cls,html){const m=$(el);m.hidden=false;m.className="msg "+(cls||"");if(html)m.innerHTML=html;else m.textContent=text;}
 $("submitBtn").addEventListener("click",async()=>{
-  busy=true;renderSum();const props=buildProps(),t=total(),[j,c]=judge(t);
-  const rec={item:short(S.item),store:S.store,who:S.evaluator,t,j,c,url:"",synced:false,created:Date.now(),props};
-  let err="";try{rec.url=await pushNotion(props);rec.synced=true;}catch(e){err=e&&e.message||"網路問題";}
-  localSave(rec);resetForm();show("home");
-  if(rec.synced)msg("connMsg","","ok",`已送進 Notion：${rec.store}・${rec.item}，總分 ${t}（${j}）。<a href="${rec.url}" target="_blank" rel="noopener">打開 Notion 紀錄</a>`);
-  else msg("connMsg","","",`沒送出（${err.slice(0,80)}），已存在這台手機：${rec.store}・${rec.item}，總分 ${t}。到「紀錄」頁按「重送」。`);
+  stash();busy=true;renderSum();const done=[],fails=[];
+  for(const st of menu(S.item)[2]){const o=S.ev[st];if(!touched(o))continue;const props=buildProps(o,st),t=total(o),[j,c]=judge(t,o);
+    const rec={item:short(S.item),store:st,who:S.evaluator,t,j,c,url:"",synced:false,created:Date.now(),props};
+    try{rec.url=await pushNotion(props);rec.synced=true;done.push(`${st} ${t}（${j}）`);}catch(e){fails.push(st+"："+(e&&e.message||"網路問題").slice(0,60));}
+    localSave(rec);}
+  const item=short(S.item);resetForm();show("home");
+  if(!fails.length)msg("connMsg","","ok",`已送進 Notion：${item}｜${done.join("、")}`);
+  else msg("connMsg","","",`${done.length?"已送出："+done.join("、")+"。":""}沒送出的已存在這台手機（${fails.join("；")}），到「紀錄」頁按「重送」。`);
   busy=false;renderAll();
 });
-function resetForm(){S.item="";S.step=0;S.veto.clear();DIMS.forEach(d=>{S.dims[d.key].clear();S.manual[d.key]="";});S.reason.clear();S.again="";S.photos=[];$("minutes").value="";$("weight").value="";$("summary").value="";$("photoHint").textContent="";$("sumMsg").hidden=true;renderPhotos();}
+function resetForm(){S.item="";S.store="";S.ev={};S.step=0;Object.assign(S,blank(""));S.photos=[];$("photoHint").textContent="";$("sumMsg").hidden=true;renderPhotos();}
 
 show(S.evaluator?"home":"pin");
 try{hist=JSON.parse(localStorage.getItem("hc_local")||"[]");}catch(e){hist=[];}
 try{PINOV=JSON.parse(localStorage.getItem("hc_pins")||"{}");}catch(e){PINOV={};}
+["summary","minutes","weight"].forEach(id=>$(id).addEventListener("input",e=>{S[id]=e.target.value;}));
 mcp=true;$("pinSave").addEventListener("click",savePin);$("copyBtn").addEventListener("click",copyAll);
 renderAll();
 </script>
